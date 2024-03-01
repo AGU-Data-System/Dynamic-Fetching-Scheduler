@@ -1,0 +1,3 @@
+package uagSystem.server.service
+
+class FetcherServiceTests

@@ -1,0 +1,15 @@
+FROM postgres
+
+ENV PORT=5432
+
+USER postgres
+
+WORKDIR /app
+
+COPY code/jvm/src/sql/create-tables.sql /docker-entrypoint-initdb.d/1_create.sql
+COPY code/jvm/src/sql/insert-test-data.sql /docker-entrypoint-initdb.d/2_insert-test-data.sql
+
+COPY --chown=postgres:postgres ./dockerfiles/scripts/wait-for-postgres.sh ./bin/wait-for-postgres.sh
+RUN chmod +x ./bin/wait-for-postgres.sh
+
+EXPOSE $PORT
