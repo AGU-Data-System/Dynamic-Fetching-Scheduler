@@ -21,9 +21,9 @@ class ProviderSchedulerService(
 	private val transactionManager: TransactionManager, //TODO: Fix
 	private val fetchDataService: FetchDataService
 ) {
-    private val scheduledTasks: MutableMap<Int, ScheduledFuture<*>> = ConcurrentHashMap() //TODO: FIX
-    private val scheduler: ScheduledExecutorService =
-        Executors.newScheduledThreadPool(10) //TODO: Probably make this a variable
+	private val scheduledTasks: MutableMap<URL, ScheduledFuture<*>> = ConcurrentHashMap() //TODO: FIX
+	private val scheduler: ScheduledExecutorService =
+		Executors.newScheduledThreadPool(10) //TODO: Probably make this a variable
 
 	@PostConstruct
 	fun initialize() {
@@ -56,8 +56,8 @@ class ProviderSchedulerService(
 			fetchDataService.fetchAndSave(provider.url) //TODO: Fix
 		}, delay, provider.frequency.toMillis(), TimeUnit.MILLISECONDS)
 
-        scheduledTasks[provider.id] = future //TODO: Fix
-    }
+		scheduledTasks[provider.url] = future //TODO: Fix
+	}
 
 	/**
 	 * Stop a provider from being fetched periodically if it changes to inactive.
