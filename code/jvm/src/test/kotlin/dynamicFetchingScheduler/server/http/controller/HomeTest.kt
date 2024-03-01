@@ -8,17 +8,17 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class HomeTest {
 
-	// One of the very few places where we use property injection
-	@LocalServerPort
-	var port: Int = 8080
+    // One of the very few places where we use property injection
+    @LocalServerPort
+    var port: Int = 8080
 
-	@Test
-	fun `get home page`() {
-		val client = WebTestClient.bindToServer().baseUrl("http://localhost:$port").build()
+    @Test
+    fun `get home page`() {
+        val client = WebTestClient.bindToServer().baseUrl("http://localhost:$port").build()
 
-		client.get().uri("/api/")
-			.exchange()
-			.expectStatus().isOk
-			.expectBody()
-	}
+        client.get().uri("/api/")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
+    }
 }

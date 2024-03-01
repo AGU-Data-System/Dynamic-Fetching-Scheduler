@@ -1,7 +1,7 @@
 package dynamicFetchingScheduler.server.repository.rawData
 
-import org.jdbi.v3.core.Handle
 import dynamicFetchingScheduler.server.domain.RawData
+import org.jdbi.v3.core.Handle
 
 class JDBIRawDataRepository(private val handle: Handle) : RawDataRepository {
     override fun saveRawData(rawData: RawData) {

@@ -8,35 +8,35 @@ import java.time.LocalDateTime
  */
 interface ProviderRepository {
 
-	fun getActiveProviders(): List<Provider>
+    fun getActiveProviders(): List<Provider>
 
-	/**
-	 * Updates the provider's lastFetch field
-	 *
-	 * @param providerId The id of the provider to update
-	 * @param lastFetch The time to update the field to
-	 */
-	fun updateLastFetch(providerId: Int, lastFetch: LocalDateTime)
+    /**
+     * Updates the provider's lastFetch field
+     *
+     * @param providerId The id of the provider to update
+     * @param lastFetch The time to update the field to
+     */
+    fun updateLastFetch(providerId: Int, lastFetch: LocalDateTime)
 
-	/**
-	 * Add a provider to the database.
-	 *
-	 * @param provider The provider to add
-	 * @return The id of the added provider
-	 */
-	fun addProvider(provider: Provider) : Int
+    /**
+     * Add a provider to the database.
+     *
+     * @param provider The provider to add
+     * @return The id of the added provider
+     */
+    fun addProvider(provider: Provider): Int
 
-	/**
-	 * Update a provider in the database.
-	 *
-	 * @param provider The provider to update
-	 */
-	fun updateProvider(provider: Provider)
+    /**
+     * Update a provider in the database.
+     *
+     * @param provider The provider to update
+     */
+    fun updateProvider(provider: Provider)
 
-	/**
-	 * Delete a provider from the database.
-	 *
-	 * @param providerId The id of the provider to delete
-	 */
-	fun deleteProvider(providerId: Int)
+    /**
+     * Delete a provider from the database.
+     *
+     * @param providerId The id of the provider to delete
+     */
+    fun deleteProvider(providerId: Int)
 }

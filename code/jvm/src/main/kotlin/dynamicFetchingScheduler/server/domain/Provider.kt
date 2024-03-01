@@ -15,9 +15,9 @@ import java.time.LocalDateTime
  * @property lastFetch The last time the provider's data was fetched
  */
 data class Provider(
-	val name: String,
-	val url: URL,
-	val frequency: Duration,
-	val isActive: Boolean,
-	val lastFetch: LocalDateTime? = null
+    val name: String,
+    val url: URL,
+    val frequency: Duration,
+    val isActive: Boolean,
+    val lastFetch: LocalDateTime? = null
 )

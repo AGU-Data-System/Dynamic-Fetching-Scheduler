@@ -1,10 +1,10 @@
 package dynamicFetchingScheduler.server.repository.jdbi.mappers
 
-import java.sql.ResultSet
-import java.time.Duration
+import dynamicFetchingScheduler.server.repository.parsePostgresIntervalToDuration
 import org.jdbi.v3.core.mapper.ColumnMapper
 import org.jdbi.v3.core.statement.StatementContext
-import dynamicFetchingScheduler.server.repository.parsePostgresIntervalToDuration
+import java.sql.ResultSet
+import java.time.Duration
 
 /**
  * Maps a column of the result set to a [Duration]
@@ -13,12 +13,12 @@ import dynamicFetchingScheduler.server.repository.parsePostgresIntervalToDuratio
  */
 class DurationMapper : ColumnMapper<Duration> {
 
-	/**
-	 * Maps a row of the result set to a [Duration]
-	 * @param rs The result set to map
-	 */
-	override fun map(rs: ResultSet, columnNumber: Int, ctx: StatementContext?): Duration {
-		val interval = rs.getString(columnNumber)
-		return parsePostgresIntervalToDuration(interval)
-	}
+    /**
+     * Maps a row of the result set to a [Duration]
+     * @param rs The result set to map
+     */
+    override fun map(rs: ResultSet, columnNumber: Int, ctx: StatementContext?): Duration {
+        val interval = rs.getString(columnNumber)
+        return parsePostgresIntervalToDuration(interval)
+    }
 }

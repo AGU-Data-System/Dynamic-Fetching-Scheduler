@@ -12,11 +12,11 @@ import java.net.http.HttpResponse
  * @return The response body
  */
 fun fetch(url: String): String {
-	val client = HttpClient.newHttpClient()
-	val request = HttpRequest.newBuilder()
-		.uri(URI.create(url))
-		.GET()
-		.build()
-	val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-	return response.body()
+    val client = HttpClient.newHttpClient()
+    val request = HttpRequest.newBuilder()
+        .uri(URI.create(url))
+        .GET()
+        .build()
+    val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+    return response.body()
 }

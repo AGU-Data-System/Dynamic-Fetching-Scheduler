@@ -9,11 +9,11 @@ class ProviderService(
     private val transactionManager: TransactionManager,
     private val schedulerService: ProviderSchedulerService
 ) {
-    fun addOrUpdateProvider(providerInputModel: ProviderInputModel){
+    fun addOrUpdateProvider(providerInputModel: ProviderInputModel) {
         //TODO: FAZER
     }
 
-    fun deleteProvider(url: String){
+    fun deleteProvider(url: String) {
         //TODO: FAZER
     }
 }

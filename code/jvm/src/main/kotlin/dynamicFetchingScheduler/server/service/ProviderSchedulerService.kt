@@ -18,7 +18,8 @@ class ProviderSchedulerService(
     private val fetchDataService: FetchDataService
 ) {
     private val scheduledTasks: MutableMap<Int, ScheduledFuture<*>> = ConcurrentHashMap() //TODO: FIX
-    private val scheduler: ScheduledExecutorService = Executors.newScheduledThreadPool(10) //TODO: Probably make this a variable
+    private val scheduler: ScheduledExecutorService =
+        Executors.newScheduledThreadPool(10) //TODO: Probably make this a variable
 
     @PostConstruct
     fun initialize() {

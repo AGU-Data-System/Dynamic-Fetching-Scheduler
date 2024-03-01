@@ -1,8 +1,8 @@
 package dynamicFetchingScheduler.server.http.controller.models
 
+import dynamicFetchingScheduler.server.domain.Provider
 import java.net.URL
 import java.time.Duration
-import dynamicFetchingScheduler.server.domain.Provider
 
 /**
  * Input model for a provider
@@ -13,20 +13,20 @@ import dynamicFetchingScheduler.server.domain.Provider
  * @property isActive Whether the provider is active or not
  */
 data class ProviderInputModel(
-	val name: String,
-	val url: String,
-	val frequency: String,
-	val isActive: Boolean
+    val name: String,
+    val url: String,
+    val frequency: String,
+    val isActive: Boolean
 ) {
-	/**
-	 * Converts the input model to a provider
-	 *
-	 * @return The provider
-	 */
-	fun toProvider() = Provider(
-		name = name,
-		url = URL(url),
-		frequency = Duration.parse(frequency),
-		isActive = isActive
-	)
+    /**
+     * Converts the input model to a provider
+     *
+     * @return The provider
+     */
+    fun toProvider() = Provider(
+        name = name,
+        url = URL(url),
+        frequency = Duration.parse(frequency),
+        isActive = isActive
+    )
 }

@@ -1,16 +1,16 @@
 package dynamicFetchingScheduler.server.service
 
-import java.net.URL
-import java.time.Duration
-import org.junit.jupiter.api.Test
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.testWithTransactionManagerAndRollback
 import dynamicFetchingScheduler.utils.Success
+import org.junit.jupiter.api.Test
+import java.net.URL
+import java.time.Duration
 
 class FetcherServiceTests {
 
     @Test
-    fun `add new provider`(){
+    fun `add new provider`() {
         // arrange
         val dummy = Provider(
             name = "dummy",
@@ -29,21 +29,21 @@ class FetcherServiceTests {
     }
 
     @Test
-    fun `update provider`(){
+    fun `update provider`() {
         // arrange
         // act
         // assert
     }
 
     @Test
-    fun `delete provider`(){
+    fun `delete provider`() {
         // arrange
         // act
         // assert
     }
 
     @Test
-    fun `update provider with not unique url should fail`(){
+    fun `update provider with not unique url should fail`() {
         // arrange
         // act
         // assert
