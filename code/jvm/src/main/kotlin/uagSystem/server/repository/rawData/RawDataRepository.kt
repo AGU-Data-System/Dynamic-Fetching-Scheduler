@@ -1,3 +1,0 @@
-package uagSystem.server.repository.rawData
-
-interface RawDataRepository
