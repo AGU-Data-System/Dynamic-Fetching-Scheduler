@@ -1,1 +1,1 @@
-rootProject.name = "UAGSystem"
+rootProject.name = "dynamicFetchingScheduler"
