@@ -12,16 +12,16 @@ import org.springframework.stereotype.Component
 @Component
 class JDBITransactionManager(private val jdbi: Jdbi) : TransactionManager {
 
-    /**
-     * Runs a transaction and returns the result
-     *
-     * @param block the block to be run in a transaction
-     *
-     * @return The result of the transaction
-     */
-    override fun <R> run(block: (Transaction) -> R): R =
-        jdbi.inTransaction<R, Exception> { handle ->
-            val transaction = JDBITransaction(handle)
-            block(transaction)
-        }
+	/**
+	 * Runs a transaction and returns the result
+	 *
+	 * @param block the block to be run in a transaction
+	 *
+	 * @return The result of the transaction
+	 */
+	override fun <R> run(block: (Transaction) -> R): R =
+		jdbi.inTransaction<R, Exception> { handle ->
+			val transaction = JDBITransaction(handle)
+			block(transaction)
+		}
 }

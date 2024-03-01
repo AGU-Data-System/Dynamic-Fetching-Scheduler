@@ -8,12 +8,12 @@ import dynamicFetchingScheduler.server.repository.rawData.RawDataRepository
  */
 interface Transaction {
 
-    val providerRepository: ProviderRepository
+	val providerRepository: ProviderRepository
 
-    val rawDataRepository: RawDataRepository
+	val rawDataRepository: RawDataRepository
 
-    /**
-     * Rolls back the transaction
-     */
-    fun rollback()
+	/**
+	 * Rolls back the transaction
+	 */
+	fun rollback()
 }

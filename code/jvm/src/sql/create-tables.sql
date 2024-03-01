@@ -4,11 +4,11 @@ begin transaction;
 create table if not exists provider
 (
     id           int generated always as identity primary key,
-    name         varchar                  not null,
-    url          varchar                  not null,
-    frequency    interval                 not null,
-    is_active    boolean default true     not null,
-    last_fetched timestamp with time zone null,
+    name         varchar              not null,
+    url          varchar              not null,
+    frequency    interval             not null,
+    is_active    boolean default true not null,
+    last_fetched timestamp with time zone,
 
     unique (url)
 );

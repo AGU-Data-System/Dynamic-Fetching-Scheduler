@@ -3,74 +3,88 @@ package dynamicFetchingScheduler.server.repository
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.repository.provider.JDBIProviderRepository
 import dynamicFetchingScheduler.server.testWithHandleAndRollback
-import org.jdbi.v3.core.statement.UnableToExecuteStatementException
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
 import java.net.URL
 import java.time.Duration
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import org.jdbi.v3.core.statement.UnableToExecuteStatementException
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class JDBIProviderRepositoryTest {
 
-    private val dummyProvider = Provider(
-        name = "ipma current day",
-        url = URL("https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day0.json"),
-        frequency = Duration
-            .ofDays(1)
-            .plusHours(1)
-            .plusMinutes(1)
-            .plusSeconds(1)
-            .plusMillis(1),
-        isActive = true
-    )
+	private val dummyProvider = Provider(
+		name = "ipma current day",
+		url = URL("https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day0.json"),
+		frequency = Duration
+			.ofDays(1)
+			.plusHours(1)
+			.plusMinutes(1)
+			.plusSeconds(1)
+			.plusMillis(1),
+		isActive = true
+	)
 
-    @Test
-    fun `add provider`() = testWithHandleAndRollback { handle ->
-        // arrange
-        val sut = dummyProvider
-        val repo = JDBIProviderRepository(handle)
-        // act
-        repo.add(sut)
-        // assert
-        val result = repo.findByUrl(sut.url)
-        assertEquals(sut, result)
-    }
+	@Test
+	fun `add provider`() = testWithHandleAndRollback { handle ->
+		// arrange
+		val sut = dummyProvider
+		val repo = JDBIProviderRepository(handle)
+		// act
+		repo.addProvider(sut)
+		// assert
+		val result = repo.findByUrl(sut.url)
+		assertNotNull(result)
+		assertEquals(sut.name, result.name)
+		assertEquals(sut.url, result.url)
+		assertEquals(sut.frequency, result.frequency)
+		assertEquals(sut.isActive, result.isActive)
+	}
 
-    @Test
-    fun `get provider by url`() = testWithHandleAndRollback { handle ->
-        // arrange
-        val provider = dummyProvider
-        // act
-        val repo = JDBIProviderRepository(handle)
-        repo.add(provider)
-        // assert
-        val result = repo.findByUrl(provider.url)
-        assertEquals(provider, result)
-    }
+	@Test
+	fun `get provider by url`() = testWithHandleAndRollback { handle ->
+		// arrange
+		val sut = dummyProvider
+		// act
+		val repo = JDBIProviderRepository(handle)
+		repo.addProvider(sut)
+		// assert
+		val result = repo.findByUrl(sut.url)
+		assertNotNull(result)
+		assertEquals(sut.name, result.name)
+		assertEquals(sut.url, result.url)
+		assertEquals(sut.frequency, result.frequency)
+		assertEquals(sut.isActive, result.isActive)
+	}
 
-    @Test
-    fun `update provider information`() = testWithHandleAndRollback { handle ->
-        // arrange
-        val provider = dummyProvider
-        val repo = JDBIProviderRepository(handle)
-        repo.add(provider)
-        // act
-        repo.update(provider.copy(isActive = false))
-        // assert
-        val result = repo.findByUrl(provider.url)
-        assertEquals(provider.copy(isActive = false), result)
-    }
+	@Test
+	fun `update provider information`() = testWithHandleAndRollback { handle ->
+		// arrange
+		val sut = dummyProvider
+		val repo = JDBIProviderRepository(handle)
+		repo.addProvider(sut)
+		// act
+		repo.updateProvider(sut.copy(isActive = false))
+		// assert
+		val result = repo.findByUrl(sut.url)
+		assertNotNull(result)
+		assertEquals(sut.name, result.name)
+		assertEquals(sut.url, result.url)
+		assertEquals(sut.frequency, result.frequency)
+		assertNotEquals(sut.isActive, result.isActive)
+	}
 
-    @Test
-    fun `update provider with a not unique url should fail`() = testWithHandleAndRollback { handle ->
-        // arrange
-        val provider = dummyProvider
-        val repo = JDBIProviderRepository(handle)
-        repo.add(provider)
-        // act and assert
-        assertFailsWith<UnableToExecuteStatementException> {
-            repo.add(provider)
-        }
-    }
+	@Test
+	fun `update provider with a not unique url should fail`() = testWithHandleAndRollback { handle ->
+		// arrange
+		val provider = dummyProvider
+		val repo = JDBIProviderRepository(handle)
+		repo.addProvider(provider)
+		// act and assert
+		assertFailsWith<UnableToExecuteStatementException> {
+			repo.addProvider(provider)
+		}
+	}
 
 }

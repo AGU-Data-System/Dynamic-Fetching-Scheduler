@@ -3,11 +3,14 @@ package dynamicFetchingScheduler.server.http.controller
 import dynamicFetchingScheduler.server.http.URIs
 import dynamicFetchingScheduler.server.http.controller.models.ProviderInputModel
 import dynamicFetchingScheduler.server.service.ProviderSchedulerService
+import dynamicFetchingScheduler.server.service.ProviderService
+import dynamicFetchingScheduler.utils.Failure
+import dynamicFetchingScheduler.utils.Success
+import java.net.URL
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
@@ -18,8 +21,12 @@ import org.springframework.web.bind.annotation.RestController
  */
 @RestController
 class ProviderController(
-    private val schedulerService: ProviderSchedulerService
+	private val schedulerService: ProviderSchedulerService,
+	private val providerService: ProviderService
 ) {
+	companion object {
+		private val logger = LoggerFactory.getLogger(ProviderController::class.java)
+	}
 
     /**
      * Adds or updates a provider.
@@ -51,5 +58,5 @@ class ProviderController(
         //TODO: FAZER
     }
 
-    //TODO: Maneira de dar get aos dados de um ou todos os providers, por exemplo com uma data, ou o ultimo fetch
+	//TODO: Maneira de dar get aos dados de um ou todos os providers, por exemplo com uma data, ou o ultimo fetch
 }
