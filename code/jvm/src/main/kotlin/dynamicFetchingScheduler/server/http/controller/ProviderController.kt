@@ -30,24 +30,23 @@ class ProviderController(
 	/**
 	 * Adds or updates a provider.
 	 *
-	 * @param provider The provider to be added or updated
+	 * @param providerInputModel The provider to be added or updated
 	 */
 	@PostMapping(URIs.PROVIDER)
-	fun addProvider(@RequestBody provider: ProviderInputModel): ResponseEntity<*> {
-		val newProvider = provider.toProvider()
-		return when (val result = providerService.addProvider(newProvider)) {
+	fun add(@RequestBody providerInputModel: ProviderInputModel): ResponseEntity<*> {
+		val providerInput = providerInputModel.toProviderInput()
+
+		return when (val result = providerService.addProvider(providerInput)) {
 			is Success -> {
 				logger.info("Provider added successfully")
-				ResponseEntity.ok().body(result.value.toString())
+				ResponseEntity.ok().body(ProviderOutputModel(result.value.first))
 			}
 
 			is Failure -> {
-				logger.error("Failed to add provider: {}, with error {}", provider, result.value)
+				logger.error("Failed to add provider: {}, with error {}", providerInputModel, result.value)
 				ResponseEntity.badRequest().body(result.value.toString())
 			}
 		}
-
-		// schedulerService.scheduleProviderTask(provider.toProvider())
 	}
 
 	/**
@@ -92,5 +91,30 @@ class ProviderController(
 			}
 		}
 	}
+
+//	@GetMapping(URIs.PROVIDER)
+//	fun provider(): ResponseEntity<*> {
+//		val result = providerService.getProvider()
+//		return ResponseEntity.ok().body(ProviderOutputModel(result))
+//	}
+//
+//	/**
+//	 * Gets all providers.
+//	 */
+//	@GetMapping(URIs.PROVIDERS)
+//	fun providers(): ResponseEntity<*> {
+//		val result = providerService.getProviders()
+//		return ResponseEntity.ok().body(ProviderListOutputModel(result))
+//	}
+
+//	@GetMapping
+//	fun latestDataFromProvider() {
+//
+//	}
+//
+//	@GetMapping
+//	fun latestDataFromProviders() {
+//
+//	}
 
 }

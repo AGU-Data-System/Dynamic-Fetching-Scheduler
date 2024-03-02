@@ -15,10 +15,18 @@ import java.time.LocalDateTime
  * @property lastFetch The last time the provider's data was fetched
  */
 data class Provider(
-	val id: Int? = null,
+	val id: Int,
 	val name: String,
 	val url: URL,
 	val frequency: Duration,
 	val isActive: Boolean,
 	val lastFetch: LocalDateTime? = null
-)
+){
+	constructor(id: Int, providerInput: ProviderInput) : this(
+		id = id,
+		name = providerInput.name,
+		url = providerInput.url,
+		frequency= providerInput.frequency,
+		isActive = providerInput.isActive
+	)
+}

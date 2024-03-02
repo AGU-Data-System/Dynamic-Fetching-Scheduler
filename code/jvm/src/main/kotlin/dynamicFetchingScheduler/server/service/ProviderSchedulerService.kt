@@ -17,10 +17,11 @@ import org.springframework.stereotype.Service
  */
 @Service
 class ProviderSchedulerService(
-	private val transactionManager: TransactionManager, //TODO: Fix
+	private val transactionManager: TransactionManager,
 	private val fetchDataService: FetchDataService
 ) {
-	private val scheduledTasks: MutableMap<URL, ScheduledFuture<*>> = ConcurrentHashMap() //TODO: FIX
+	private val providerPoolSize = 10
+	private val scheduledTasks: MutableMap<Int, ScheduledFuture<*>> = ConcurrentHashMap()
 	private val scheduler: ScheduledExecutorService =
 		Executors.newScheduledThreadPool(providerPoolSize)
 
@@ -29,7 +30,6 @@ class ProviderSchedulerService(
 		scheduleActiveProviders()
 	}
 
-	//TODO: Be aware of transactional issues
 	/**
 	 * Schedule the active providers to be fetched periodically.
 	 */
@@ -60,12 +60,12 @@ class ProviderSchedulerService(
 	/**
 	 * Stop a provider from being fetched periodically if it changes to inactive.
 	 *
-	 * @param providerURL The URL of the provider to stop fetching
+	 * @param providerId The URL of the provider to stop fetching
 	 */
 	fun stopProviderTask(providerId: Int) {
 		val future = scheduledTasks[providerId]
 		future?.cancel(false)
-		scheduledTasks.remove(providerURL)
+		scheduledTasks.remove(providerId)
 	}
 
 	/**

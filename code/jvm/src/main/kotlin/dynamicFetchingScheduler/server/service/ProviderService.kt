@@ -19,7 +19,7 @@ class ProviderService(
 	/**
 	 * Adds a provider.
 	 *
-	 * @param provider The provider to be added
+	 * @param providerInput The provider to be added
 	 *
 	 * @return The result of adding the provider
 	 */

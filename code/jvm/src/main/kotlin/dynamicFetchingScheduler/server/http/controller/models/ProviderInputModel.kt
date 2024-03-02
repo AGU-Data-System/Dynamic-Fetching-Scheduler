@@ -23,7 +23,7 @@ data class ProviderInputModel(
 	 *
 	 * @return The provider
 	 */
-	fun toProvider() = Provider(
+	fun toProviderInput() = ProviderInput(
 		name = name,
 		url = URL(url),
 		frequency = Duration.parse(frequency),

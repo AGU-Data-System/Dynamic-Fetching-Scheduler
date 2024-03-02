@@ -8,6 +8,12 @@ import dynamicFetchingScheduler.server.service.errors.UpdateProviderError
 import dynamicFetchingScheduler.utils.Either
 
 /**
+ * Represents the success case of adding a providers,
+ * Contains the provider, and if the scheduling for that provider is on or not
+ */
+typealias ProviderSuccess = Pair<Provider, Boolean>
+
+/**
  * Result for adding a provider
  * @see AddProviderError
  * @see ProviderInput
