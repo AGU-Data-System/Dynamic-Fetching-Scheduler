@@ -1,6 +1,6 @@
 package dynamicFetchingScheduler.server.http.controller.models
 
-import dynamicFetchingScheduler.server.domain.Provider
+import dynamicFetchingScheduler.server.domain.ProviderInput
 import java.net.URL
 import java.time.Duration
 

@@ -1,6 +1,6 @@
 package dynamicFetchingScheduler.server.service
 
-import dynamicFetchingScheduler.server.domain.Provider
+import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.testWithTransactionManagerAndRollback
 import dynamicFetchingScheduler.utils.Success
 import java.net.URL
@@ -12,7 +12,7 @@ class FetcherServiceTests {
 	@Test
 	fun `add new provider`() {
 		// arrange
-		val dummy = Provider(
+		val dummy = ProviderInput(
 			name = "dummy",
 			url = URL("http://dummy.com"),
 			frequency = Duration.ofMillis(1000),

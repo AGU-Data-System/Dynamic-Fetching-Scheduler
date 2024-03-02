@@ -1,6 +1,6 @@
 package dynamicFetchingScheduler.server.repository
 
-import dynamicFetchingScheduler.server.domain.Provider
+import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.repository.provider.JDBIProviderRepository
 import dynamicFetchingScheduler.server.testWithHandleAndRollback
 import java.net.URL
@@ -12,9 +12,9 @@ import org.jdbi.v3.core.statement.UnableToExecuteStatementException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class JDBIProviderRepositoryTest {
+class JDBIProviderRepositoryTestInput {
 
-	private val dummyProvider = Provider(
+	private val dummyProvider = ProviderInput(
 		name = "ipma current day",
 		url = URL("https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day0.json"),
 		frequency = Duration

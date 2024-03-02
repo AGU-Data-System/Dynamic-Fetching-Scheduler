@@ -1,6 +1,6 @@
 package dynamicFetchingScheduler.server.repository.rawData
 
-import dynamicFetchingScheduler.server.domain.Provider
+import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.domain.RawData
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
@@ -23,7 +23,7 @@ class JDBIRawDataRepository(private val handle: Handle) : RawDataRepository {
 
 		val provider = handle.createQuery("SELECT * FROM provider WHERE url = :url")
 			.bind("url", rawData.providerUrl)
-			.mapTo<Provider>()
+			.mapTo<ProviderInput>()
 			.one()
 
 		logger.info("Saving raw data for provider: {}", provider.name)

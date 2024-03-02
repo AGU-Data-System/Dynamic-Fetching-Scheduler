@@ -2,7 +2,7 @@ package dynamicFetchingScheduler.server.http.controller
 
 import dynamicFetchingScheduler.server.http.URIs
 import dynamicFetchingScheduler.server.http.controller.models.ProviderInputModel
-import dynamicFetchingScheduler.server.service.ProviderSchedulerService
+import dynamicFetchingScheduler.server.http.controller.models.ProviderOutputModel
 import dynamicFetchingScheduler.server.service.ProviderService
 import dynamicFetchingScheduler.utils.Failure
 import dynamicFetchingScheduler.utils.Success
@@ -17,11 +17,10 @@ import org.springframework.web.bind.annotation.RestController
 /**
  * Controller for fetching data from the providers.
  *
- * @property schedulerService The service for fetching data from the providers, injected by Spring
+ * @property providerService The service for manipulating providers, injected by Spring
  */
 @RestController
 class ProviderController(
-	private val schedulerService: ProviderSchedulerService,
 	private val providerService: ProviderService
 ) {
 	companion object {
@@ -57,10 +56,9 @@ class ProviderController(
 	 * @param provider The provider to be updated
 	 */
 	@PostMapping(URIs.UPDATE_PROVIDER) // TODO change this
-	fun updateProvider(@RequestBody provider: ProviderInputModel): ResponseEntity<*> {
-		//schedulerService.stopProviderTask(id)
-		//schedulerService.scheduleProviderTask(provider.toProvider())
-		val newProvider = provider.toProvider()
+	fun update(@RequestBody provider: ProviderInputModel): ResponseEntity<*> {
+		val newProvider = provider.toProviderInput()
+
 		return when (val result = providerService.updateProvider(newProvider)) {
 			is Success -> {
 				logger.info("Provider updated successfully")
@@ -72,7 +70,6 @@ class ProviderController(
 				ResponseEntity.badRequest().body(result.value.toString())
 			}
 		}
-		// return ResponseEntity.ok("Provider updated successfully") // TODO: Adjust the response message
 	}
 
 	/**
@@ -81,9 +78,7 @@ class ProviderController(
 	 * @param url The URL of the provider to delete
 	 */
 	@DeleteMapping(URIs.PROVIDER)
-	fun deleteProvider(@RequestBody url: String): ResponseEntity<String> {
-		//val providerId = // TODO: Extract providerId from the URL or adjust the method parameter
-		//schedulerService.stopProviderTask(providerId)
+	fun delete(@RequestBody url: String): ResponseEntity<String> {
 		val providerURL = URL(url)
 		return when (val result = providerService.deleteProvider(providerURL)) {
 			is Success -> {
@@ -98,5 +93,4 @@ class ProviderController(
 		}
 	}
 
-	//TODO: Maneira de dar get aos dados de um ou todos os providers, por exemplo com uma data, ou o ultimo fetch
 }

@@ -1,8 +1,9 @@
 package dynamicFetchingScheduler.server.repository.provider
 
 import dynamicFetchingScheduler.server.domain.Provider
+import dynamicFetchingScheduler.server.domain.ProviderInput
 import java.net.URL
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import org.slf4j.LoggerFactory
@@ -35,10 +36,10 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	/**
 	 * Updates the provider's lastFetch field
 	 *
-	 * @param providerId The id of the provider to update
+	 * @param providerURL The URL of the provider to update
 	 * @param lastFetch The time to update the field to
 	 */
-	override fun updateLastFetch(providerId: Int, lastFetch: LocalDateTime) {
+	override fun updateLastFetch(providerURL: URL, lastFetch: ZonedDateTime) {
 
 		logger.info("Updating last fetch for provider: {}", providerId)
 
@@ -55,19 +56,24 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 *
 	 * @param provider The provider to add.
 	 */
-	override fun addProvider(provider: Provider) {
+	override fun addProvider(provider: ProviderInput): Provider {
 
 		logger.info("Adding provider: {}", provider)
 
-		handle.createUpdate("INSERT INTO provider (name, url, frequency, last_fetched, is_active) VALUES (:name, :url, :frequency, :lastFetch, :isActive)")
+		val providerId = handle.createUpdate("INSERT INTO provider (name, url, frequency, is_active) VALUES (:name, :url, :frequency, :isActive)")
 			.bind("name", provider.name)
 			.bind("url", provider.url.toString())
 			.bind("frequency", provider.frequency)
-			.bind("lastFetch", provider.lastFetch)
 			.bind("isActive", provider.isActive)
-			.execute()
+			.executeAndReturnGeneratedKeys()
+			.mapTo<Int>()
+			.one()
 
-		logger.info("Added provider: {}", provider.name)
+		val newProvider = Provider(providerId, provider)
+
+		logger.info("Added provider: {}", newProvider)
+
+		return newProvider
 	}
 
 	/**
@@ -75,16 +81,16 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 *
 	 * @param provider The provider to update.
 	 */
-	override fun updateProvider(provider: Provider) {
+	override fun updateProvider(provider: ProviderInput): Provider {
 
 		val oldProvider = handle.createQuery("SELECT * FROM provider WHERE url = :url")
 			.bind("url", provider.url.toString())
-			.mapTo<Provider>()
+			.mapTo<ProviderInput>()
 			.one()
 
 		logger.info("Updating provider: {}", oldProvider)
 
-		handle.createUpdate(
+		val providerId = handle.createUpdate(
 			"""
 			UPDATE provider SET name = :name, 
 			frequency = :frequency, 
@@ -97,10 +103,14 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 			.bind("url", provider.url.toString())
 			.bind("frequency", provider.frequency)
 			.bind("isActive", provider.isActive)
-			.bind("lastFetch", provider.lastFetch)
-			.execute()
+			.executeAndReturnGeneratedKeys()
+			.mapTo<Int>()
+			.one()
 
-		logger.info("Updated provider: {}", provider)
+		val newProvider = Provider(providerId,provider)
+		logger.info("Updated provider: {}", newProvider)
+
+		return newProvider
 	}
 
 	/**
@@ -108,15 +118,18 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 *
 	 * @param url The url of the provider to delete.
 	 */
-	override fun deleteProvider(url: URL) {
+	override fun deleteProvider(url: URL): Int {
 
 		logger.info("Deleting provider: {}", url)
 
-		handle.createUpdate("DELETE FROM provider WHERE url = :url")
+		val providerId = handle.createUpdate("DELETE FROM provider WHERE url = :url")
 			.bind("url", url.toString())
-			.execute()
+			.executeAndReturnGeneratedKeys("id")
+			.mapTo<Int>()
+			.one()
 
 		logger.info("Provider deleted")
+		return providerId
 	}
 
 	/**
@@ -137,6 +150,23 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 		logger.info("Fetched provider by URL: {}", provider)
 
 		return provider
+	}
+
+	/**
+	 * Get all providers from the database.
+	 *
+	 * @return The list of all providers
+	 */
+	override fun getAllProviders(): List<Provider> {
+		logger.info("Fetching all providers")
+
+		val providers = handle.createQuery("SELECT * FROM provider")
+			.mapTo<Provider>()
+			.list()
+
+		logger.info("Fetched all providers: {}", providers)
+
+		return providers
 	}
 
 	companion object {
