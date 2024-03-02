@@ -20,7 +20,7 @@ interface ProviderRepository {
 	/**
 	 * Updates the provider's lastFetch field
 	 *
-	 * @param providerId The id of the provider to update
+	 * @param providerURL The URL of the provider to update
 	 * @param lastFetch The time to update the field to
 	 */
 	fun updateLastFetch(providerURL: URL, lastFetch: ZonedDateTime)

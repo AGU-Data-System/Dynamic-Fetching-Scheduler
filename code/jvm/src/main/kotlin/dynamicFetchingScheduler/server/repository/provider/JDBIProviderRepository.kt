@@ -41,14 +41,14 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 */
 	override fun updateLastFetch(providerURL: URL, lastFetch: ZonedDateTime) {
 
-		logger.info("Updating last fetch for provider: {}", providerId)
+		logger.info("Updating last fetch for provider: {}", providerURL)
 
-		handle.createUpdate("UPDATE provider SET last_fetch = :lastFetch WHERE id = :id")
-			.bind("id", providerId)
+		handle.createUpdate("UPDATE provider SET last_fetch = :lastFetch WHERE url = :url")
+			.bind("url", providerURL)
 			.bind("lastFetch", lastFetch)
 			.execute()
 
-		logger.info("Updated last fetch for provider: {}", providerId)
+		logger.info("Updated last fetch for provider: {}", providerURL)
 	}
 
 	/**
