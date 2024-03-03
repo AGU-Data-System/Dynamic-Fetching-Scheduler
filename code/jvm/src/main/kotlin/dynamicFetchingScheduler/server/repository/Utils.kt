@@ -21,10 +21,3 @@ fun Jdbi.configureWithAppRequirements(): Jdbi {
 
     return this
 }
-
-/**
- * Parses a Postgres interval string to a [Duration]
- * @param interval The interval string to parse
- * @return The [Duration] parsed from the interval string
- */
-fun parsePostgresIntervalToDuration(interval: Long): Duration = Duration.ofSeconds(interval)
