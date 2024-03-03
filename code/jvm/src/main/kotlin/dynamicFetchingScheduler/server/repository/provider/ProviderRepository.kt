@@ -2,6 +2,7 @@ package dynamicFetchingScheduler.server.repository.provider
 
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.domain.ProviderInput
+import dynamicFetchingScheduler.server.domain.ProviderOutputData
 import java.net.URL
 import java.time.ZonedDateTime
 
@@ -60,4 +61,21 @@ interface ProviderRepository {
 	 * @return The list of providers
 	 */
 	fun getAllProviders(): List<Provider>
+
+	/**
+	 * Get the data of a provider from the database.
+	 *
+	 * @param url The URL of the provider to get
+	 * @param amount The number of rows to get, ordered by most recent
+	 * @return The provider
+	 */
+	fun getProviderData(url: URL, amount: Int): List<ProviderOutputData>
+
+	/**
+	 * Get the data of a provider from the database.
+	 *
+	 * @param amount The number of rows to get, ordered by most recent
+	 * @return The provider
+	 */
+	fun getProvidersData(amount: Int): Provider?
 }

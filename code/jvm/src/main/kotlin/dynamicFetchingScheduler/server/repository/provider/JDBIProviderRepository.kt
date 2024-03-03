@@ -2,6 +2,7 @@ package dynamicFetchingScheduler.server.repository.provider
 
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.domain.ProviderInput
+import dynamicFetchingScheduler.server.domain.ProviderOutputData
 import java.net.URL
 import java.time.ZonedDateTime
 import org.jdbi.v3.core.Handle
@@ -167,6 +168,42 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 		logger.info("Fetched all providers: {}", providers)
 
 		return providers
+	}
+
+	/**
+	 * Get the data of a provider from the database.
+	 *
+	 * @param url The URL of the provider to get
+	 * @param amount The number of rows to get, ordered by most recent
+	 * @return The provider
+	 */
+	override fun getProviderData(url: URL, amount: Int): List<ProviderOutputData> {
+		logger.info("Fetching provider data by URL: {} and amount: {}", url, amount)
+
+		val query = """
+			SELECT p.id, p.url, p.name, r.timestamp, r.data
+			FROM provider p
+			JOIN raw_data r ON p.id = r.provider_id
+			WHERE p.url = :providerId
+			ORDER BY r.timestamp DESC
+			LIMIT :amount
+		""".trimIndent()
+
+		return handle.createQuery(query)
+			.bind("providerId", url)
+			.bind("amount", amount)
+			.mapTo<ProviderOutputData>()
+			.list()
+	}
+
+	/**
+	 * Get the data of a provider from the database.
+	 *
+	 * @param amount The number of rows to get, ordered by most recent
+	 * @return The provider
+	 */
+	override fun getProvidersData(amount: Int): Provider? {
+		TODO("Not yet implemented")
 	}
 
 	companion object {

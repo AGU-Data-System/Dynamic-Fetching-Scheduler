@@ -106,15 +106,7 @@ class ProviderController(
 //		val result = providerService.getProviders()
 //		return ResponseEntity.ok().body(ProviderListOutputModel(result))
 //	}
-
-//	@GetMapping
-//	fun latestDataFromProvider() {
-//
-//	}
-//
-//	@GetMapping
-//	fun latestDataFromProviders() {
-//
-//	}
+	//GET LAST X DATA FROM PROVIDER (in case of omition of x, return all data)
+	//GET LAST X DATA FROM ALL PROVIDERS (in case of omition of x, return all data)
 
 }
