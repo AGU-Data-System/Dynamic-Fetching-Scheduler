@@ -25,7 +25,7 @@ class ProviderService(
 	 */
 	fun addProvider(providerInput: ProviderInput): AddProviderResult {
 		 val provider = transactionManager.run {
-			 it.providerRepository.findByUrl(providerInput.url) ?: return@run null
+			 if(it.providerRepository.findByUrl(providerInput.url) != null) return@run null
 
 			 logger.info("Adding Provider to repository")
 			 return@run it.providerRepository.addProvider(providerInput)

@@ -21,14 +21,14 @@ class JDBIRawDataRepository(private val handle: Handle) : RawDataRepository {
 	override fun saveRawData(rawData: RawData) {
 		logger.info("Fetching provider for url: {}", rawData.providerUrl)
 
-		val provider = handle.createQuery("SELECT * FROM provider WHERE url = :url")
-			.bind("url", rawData.providerUrl)
+		val provider = handle.createQuery("SELECT id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched FROM provider WHERE url = :url")
+			.bind("url", rawData.providerUrl.toString())
 			.mapTo<Provider>()
 			.one()
 
 		logger.info("Saving raw data for provider: {}", provider.name)
 
-		handle.createUpdate("INSERT INTO raw_data (provider_id, fetch_time, data) VALUES (:providerId, :timestamp, :data)")
+		handle.createUpdate("INSERT INTO raw_data (provider_id, fetch_time, data) VALUES (:providerId, :timestamp, cast(:data as jsonb))")
 			.bind("providerId", provider.id)
 			.bind("data", rawData.data)
 			.bind("timestamp", rawData.fetchTime)

@@ -24,7 +24,7 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 
 		logger.info("Fetching active providers")
 
-		val providers = handle.createQuery("SELECT * FROM provider WHERE is_active = true")
+		val providers = handle.createQuery("SELECT id, name, id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched FROM provider WHERE is_active = true")
 			.mapTo<Provider>()
 			.list()
 
@@ -37,15 +37,15 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 * Updates the provider's lastFetch field
 	 *
 	 * @param providerURL The URL of the provider to update
-	 * @param lastFetch The time to update the field to
+	 * @param lastFetched The time to update the field to
 	 */
-	override fun updateLastFetch(providerURL: URL, lastFetch: ZonedDateTime) {
+	override fun updateLastFetch(providerURL: URL, lastFetched: ZonedDateTime) {
 
 		logger.info("Updating last fetch for provider: {}", providerURL)
 
-		handle.createUpdate("UPDATE provider SET last_fetch = :lastFetch WHERE url = :url")
-			.bind("url", providerURL)
-			.bind("lastFetch", lastFetch)
+		handle.createUpdate("UPDATE provider SET last_fetched = :lastFetched WHERE url = :url")
+			.bind("url", providerURL.toString())
+			.bind("lastFetched", lastFetched)
 			.execute()
 
 		logger.info("Updated last fetch for provider: {}", providerURL)

@@ -1,6 +1,6 @@
 package dynamicFetchingScheduler.server.repository
 
-import dynamicFetchingScheduler.server.repository.jdbi.mappers.DurationMapper
+//import dynamicFetchingScheduler.server.repository.jdbi.mappers.DurationMapper
 import dynamicFetchingScheduler.server.repository.jdbi.mappers.ProviderMapper
 import java.time.Duration
 import org.jdbi.v3.core.Jdbi
@@ -15,8 +15,6 @@ fun Jdbi.configureWithAppRequirements(): Jdbi {
 	installPlugin(KotlinPlugin())
 	installPlugin(PostgresPlugin())
 
-	registerColumnMapper(DurationMapper())
-
 	registerRowMapper(ProviderMapper())
 
 	return this
@@ -27,19 +25,4 @@ fun Jdbi.configureWithAppRequirements(): Jdbi {
  * @param interval The interval string to parse
  * @return The [Duration] parsed from the interval string
  */
-fun parsePostgresIntervalToDuration(interval: String): Duration {
-	val pattern = """(\d+)\s+days?\s+(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?""".toRegex()
-
-	val matchResult = pattern.find(interval) ?: return Duration.ZERO
-
-	val (days, hours, minutes, seconds, millis) = matchResult.destructured
-
-	return Duration
-		.ofDays(days.toLongOrZero())
-		.plusHours(hours.toLongOrZero())
-		.plusMinutes(minutes.toLong())
-		.plusSeconds(seconds.toLong())
-		.plusMillis(millis.toLongOrZero())
-}
-
-private fun String.toLongOrZero() = toLongOrNull() ?: 0
+fun parsePostgresIntervalToDuration(interval: Long): Duration = Duration.ofSeconds(interval)

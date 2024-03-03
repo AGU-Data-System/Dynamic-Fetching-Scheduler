@@ -8,8 +8,8 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.ZonedDateTime
-import org.json.JSONObject
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 /**
@@ -28,9 +28,9 @@ class FetchDataService(
 		logger.info("Fetching data from provider: {}", providerURL)
 		val response = fetch(providerURL.toString())
 		logger.info("Fetched data from provider with status code: {}", response.first)
-
+		if (response.first != HttpStatus.OK.value()) return
 		transactionManager.run {
-			it.rawDataRepository.saveRawData(RawData(providerURL, ZonedDateTime.now(), JSONObject(response.second), response.first))
+			it.rawDataRepository.saveRawData(RawData(providerURL, ZonedDateTime.now(), response.second, response.first))
 			it.providerRepository.updateLastFetch(providerURL, ZonedDateTime.now())
 
 			logger.info("Saved data from provider on Database")

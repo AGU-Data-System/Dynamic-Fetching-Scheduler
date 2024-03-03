@@ -2,7 +2,6 @@ package dynamicFetchingScheduler.server.domain
 
 import java.net.URL
 import java.time.ZonedDateTime
-import org.json.JSONObject
 
 /**
  * Represents the raw data fetched from a provider.
@@ -14,6 +13,6 @@ import org.json.JSONObject
 data class RawData(
 	val providerUrl: URL,
 	val fetchTime: ZonedDateTime,
-	val data: JSONObject,
+	val data: String,
 	val statusCode : Int
 )

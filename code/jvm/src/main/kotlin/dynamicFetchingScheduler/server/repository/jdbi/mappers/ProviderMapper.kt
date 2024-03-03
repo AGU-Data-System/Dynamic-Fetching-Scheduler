@@ -24,8 +24,9 @@ class ProviderMapper : RowMapper<Provider> {
 			id = rs.getInt("id"),
 			name = rs.getString("name"),
 			url = URL(rs.getString("url")),
-			frequency = parsePostgresIntervalToDuration(rs.getString("frequency")),
-			isActive = rs.getBoolean("is_active")
+			frequency = parsePostgresIntervalToDuration(rs.getLong("frequency")),
+			isActive = rs.getBoolean("is_active"),
+			lastFetch = rs.getTimestamp("last_fetched")?.toLocalDateTime()
 		)
 	}
 }

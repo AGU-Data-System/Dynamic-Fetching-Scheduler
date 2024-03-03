@@ -18,7 +18,6 @@ create table if not exists raw_data
 (
     provider_id int,
     fetch_time  timestamp with time zone not null,
-    status_code int,
     data        jsonb                    not null,
 
     primary key (provider_id, fetch_time),
