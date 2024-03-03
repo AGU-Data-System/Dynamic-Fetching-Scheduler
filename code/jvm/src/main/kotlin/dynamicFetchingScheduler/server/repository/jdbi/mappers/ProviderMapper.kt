@@ -1,11 +1,11 @@
 package dynamicFetchingScheduler.server.repository.jdbi.mappers
 
 import dynamicFetchingScheduler.server.domain.Provider
-import org.jdbi.v3.core.mapper.RowMapper
-import org.jdbi.v3.core.statement.StatementContext
 import java.net.URL
 import java.sql.ResultSet
 import java.time.Duration
+import org.jdbi.v3.core.mapper.RowMapper
+import org.jdbi.v3.core.statement.StatementContext
 
 /**
  * Maps a row of the result set to a [Provider]

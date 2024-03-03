@@ -2,9 +2,9 @@ package dynamicFetchingScheduler.server.service
 
 import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.testWithTransactionManagerAndRollback
-import org.junit.jupiter.api.Test
 import java.net.URL
 import java.time.Duration
+import org.junit.jupiter.api.Test
 
 class FetcherServiceTests {
 

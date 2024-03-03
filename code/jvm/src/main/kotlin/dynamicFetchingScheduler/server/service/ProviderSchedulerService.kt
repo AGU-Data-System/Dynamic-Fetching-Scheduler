@@ -3,7 +3,6 @@ package dynamicFetchingScheduler.server.service
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.repository.TransactionManager
 import jakarta.annotation.PostConstruct
-import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
@@ -11,6 +10,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import org.springframework.stereotype.Service
 
 /**
  * Service for scheduling provider periodic fetching.

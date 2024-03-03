@@ -2,10 +2,13 @@ package dynamicFetchingScheduler.server.http.controller
 
 import dynamicFetchingScheduler.server.http.URIs
 import dynamicFetchingScheduler.server.http.controller.models.GetProviderOutputModel
+import dynamicFetchingScheduler.server.http.controller.models.ListProviderWithDataOutputModel
 import dynamicFetchingScheduler.server.http.controller.models.ProviderInputModel
+import dynamicFetchingScheduler.server.http.controller.models.ProviderWithDataOutputModel
 import dynamicFetchingScheduler.server.service.ProviderService
 import dynamicFetchingScheduler.utils.Failure
 import dynamicFetchingScheduler.utils.Success
+import java.net.URL
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -14,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.net.URL
 
 /**
  * Controller for fetching data from the providers.
@@ -105,10 +107,9 @@ class ProviderController(
     @GetMapping(URIs.PROVIDERS)
     fun getAll(): ResponseEntity<*> {
         logger.info("Fetching all providers")
-        //TODO: CONVERT TO OUTPUT MODEL
         val result = providerService.getAllProviders()
         logger.info("Providers fetched successfully")
-        return ResponseEntity.ok().body(result)
+        return ResponseEntity.ok().body(ListProviderWithDataOutputModel(result))
     }
 
     /**
@@ -121,9 +122,8 @@ class ProviderController(
         val providerURL = URL(url)
         return when (val result = providerService.getProvider(providerURL)) {
             is Success -> {
-                //TODO: CONVERT TO OUTPUT MODEL
                 logger.info("Provider fetched successfully")
-                ResponseEntity.ok().body(result.value)
+                ResponseEntity.ok().body(ProviderWithDataOutputModel(result.value))
             }
 
             is Failure -> {

@@ -1,18 +1,18 @@
 package dynamicFetchingScheduler.server.http.controller.models
 
-import dynamicFetchingScheduler.server.domain.ProviderRawData
 import dynamicFetchingScheduler.server.domain.ProviderWithData
 
-data class ProviderRawDataOutputModel(
-    val fetchTime: String,
-    val data: String
-) {
-    constructor(providerRawData: ProviderRawData) : this(
-        fetchTime = providerRawData.fetchTime.toString(),
-        data = providerRawData.data
-    )
-}
-
+/**
+ * Output model for a provider with its data to be sent by the API.
+ *
+ * @property id The ID of the provider
+ * @property name The name of the provider
+ * @property url The URL of the provider
+ * @property frequency The frequency of the provider
+ * @property isActive Whether the provider is active
+ * @property lastFetch The last time the provider was fetched
+ * @property dataList The data of the provider
+ */
 data class ProviderWithDataOutputModel(
     val id: Int,
     val name: String,
@@ -32,4 +32,3 @@ data class ProviderWithDataOutputModel(
         dataList = provider.dataList.map { ProviderRawDataOutputModel(it) }
     )
 }
-

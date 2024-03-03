@@ -4,11 +4,11 @@ import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.domain.ProviderWithData
 import dynamicFetchingScheduler.server.domain.RawData
+import java.net.URL
+import java.time.LocalDateTime
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import org.slf4j.LoggerFactory
-import java.net.URL
-import java.time.LocalDateTime
 
 /**
  * A JDBI implementation of the [ProviderRepository].
@@ -87,10 +87,16 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
      */
     override fun updateProvider(provider: ProviderInput): Provider {
 
-        val oldProvider = handle.createQuery("SELECT * FROM provider WHERE url = :url")
-            .bind("url", provider.url.toString())
-            .mapTo<ProviderInput>()
-            .one()
+		val oldProvider = handle.createQuery(
+			"""
+            SELECT id, name, id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched 
+            FROM provider 
+            WHERE url = :url
+            """.trimIndent()
+		)
+			.bind("url", provider.url.toString())
+			.mapTo<Provider>()
+			.one()
 
         logger.info("Updating provider: {}", oldProvider)
 
@@ -102,14 +108,15 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 			last_fetched = :lastFetch 
 			WHERE url = :url
 			""".trimIndent()
-        )
-            .bind("name", provider.name)
-            .bind("url", provider.url.toString())
-            .bind("frequency", provider.frequency)
-            .bind("isActive", provider.isActive)
-            .executeAndReturnGeneratedKeys()
-            .mapTo<Int>()
-            .one()
+		)
+			.bind("name", provider.name)
+			.bind("url", provider.url.toString())
+			.bind("frequency", provider.frequency)
+			.bind("lastFetch", oldProvider.lastFetch) // TODO: Check cause using old value
+			.bind("isActive", provider.isActive)
+			.executeAndReturnGeneratedKeys()
+			.mapTo<Int>()
+			.one()
 
         val newProvider = Provider(providerId, provider)
         logger.info("Updated provider: {}", newProvider)
@@ -146,10 +153,16 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 
         logger.info("Fetching provider by URL: {}", url)
 
-        val provider = handle.createQuery("SELECT * FROM provider WHERE url = :url")
-            .bind("url", url.toString())
-            .mapTo<Provider>()
-            .firstOrNull()
+		val provider = handle.createQuery(
+			"""
+            SELECT id, name, id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched 
+            FROM provider 
+            WHERE url = :url
+            """.trimIndent()
+		)
+			.bind("url", url.toString())
+			.mapTo<Provider>()
+			.firstOrNull()
 
         logger.info("Fetched provider by URL: {}", provider)
 
@@ -165,9 +178,10 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 
         logger.info("Fetching providers from database")
 
-        val providers = handle.createQuery(
-            """
-            SELECT *
+		val providers = handle.createQuery(
+			"""
+            SELECT p.id, p.name, p.url, extract(epoch from p.frequency) as frequency, p.is_active, p.last_fetched, 
+            r.fetch_time, r.data
             FROM provider p
             LEFT JOIN raw_data r ON p.id = r.provider_id 
             ORDER BY p.id, r.fetch_time

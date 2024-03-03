@@ -2,15 +2,15 @@ package dynamicFetchingScheduler.server.service
 
 import dynamicFetchingScheduler.server.domain.RawData
 import dynamicFetchingScheduler.server.repository.TransactionManager
-import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
-import org.springframework.stereotype.Service
 import java.net.URI
 import java.net.URL
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.LocalDateTime
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Service
 
 /**
  * Service for fetching data from a provider

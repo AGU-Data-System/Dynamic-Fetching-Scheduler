@@ -9,9 +9,9 @@ import dynamicFetchingScheduler.server.service.errors.GetProviderError
 import dynamicFetchingScheduler.server.service.errors.UpdateProviderError
 import dynamicFetchingScheduler.utils.failure
 import dynamicFetchingScheduler.utils.success
+import java.net.URL
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.net.URL
 
 @Service
 class ProviderService(
