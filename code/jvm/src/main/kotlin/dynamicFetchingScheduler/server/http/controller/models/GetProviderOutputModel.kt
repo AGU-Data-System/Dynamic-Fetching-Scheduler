@@ -12,20 +12,20 @@ import dynamicFetchingScheduler.server.domain.Provider
  * @property isActive Whether the provider is active
  * @property lastFetch The last time the provider was fetched
  */
-data class ProviderOutputModel(
-	val id: Int,
-	val name: String,
-	val url: String,
-	val frequency: String,
-	val isActive: Boolean,
-	val lastFetch: String?
+data class GetProviderOutputModel(
+    val id: Int,
+    val name: String,
+    val url: String,
+    val frequency: String,
+    val isActive: Boolean,
+    val lastFetch: String?
 ) {
-	constructor(provider: Provider) : this(
-		id = provider.id,
-		name = provider.name,
-		url = provider.url.toString(),
-		frequency = provider.frequency.toString(),
-		isActive = provider.isActive,
-		lastFetch = provider.lastFetch?.toString()
-	)
+    constructor(provider: Provider) : this(
+        id = provider.id,
+        name = provider.name,
+        url = provider.url.toString(),
+        frequency = provider.frequency.toString(),
+        isActive = provider.isActive,
+        lastFetch = provider.lastFetch?.toString()
+    )
 }

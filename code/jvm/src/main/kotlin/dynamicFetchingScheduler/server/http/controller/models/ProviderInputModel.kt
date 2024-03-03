@@ -13,20 +13,20 @@ import java.time.Duration
  * @property isActive Whether the provider is active or not
  */
 data class ProviderInputModel(
-	val name: String,
-	val url: String,
-	val frequency: String,
-	val isActive: Boolean
+    val name: String,
+    val url: String,
+    val frequency: String,
+    val isActive: Boolean
 ) {
-	/**
-	 * Converts the input model to a provider
-	 *
-	 * @return The provider
-	 */
-	fun toProviderInput() = ProviderInput(
-		name = name,
-		url = URL(url),
-		frequency = Duration.parse(frequency),
-		isActive = isActive
-	)
+    /**
+     * Converts the input model to a provider
+     *
+     * @return The provider
+     */
+    fun toProviderInput() = ProviderInput(
+        name = name,
+        url = URL(url),
+        frequency = Duration.parse(frequency),
+        isActive = isActive
+    )
 }

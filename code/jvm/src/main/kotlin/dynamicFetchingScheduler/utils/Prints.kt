@@ -6,7 +6,7 @@ package dynamicFetchingScheduler.utils
  * @param message Error message
  */
 fun printErrorMessage(message: String) {
-	println("Error: $message")
+    println("Error: $message")
 }
 
 /**
@@ -14,5 +14,5 @@ fun printErrorMessage(message: String) {
  * @param data Data to print
  */
 fun printData(data: String) {
-	println("Data: $data")
+    println("Data: $data")
 }

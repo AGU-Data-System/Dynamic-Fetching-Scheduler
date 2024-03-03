@@ -7,10 +7,10 @@ import dynamicFetchingScheduler.server.domain.RawData
  */
 interface RawDataRepository {
 
-	/**
-	 * Save raw data to the database
-	 *
-	 * @param rawData The raw data to save
-	 */
-	fun saveRawData(rawData: RawData)
+    /**
+     * Save raw data to the database
+     *
+     * @param rawData The raw data to save
+     */
+    fun saveRawData(rawData: RawData)
 }

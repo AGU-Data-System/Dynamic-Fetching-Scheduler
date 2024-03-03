@@ -14,13 +14,13 @@ import org.jdbi.v3.core.Handle
  */
 class JDBITransaction(private val handle: Handle) : Transaction {
 
-	override val providerRepository: ProviderRepository = JDBIProviderRepository(handle)
-	override val rawDataRepository: RawDataRepository = JDBIRawDataRepository(handle)
+    override val providerRepository: ProviderRepository = JDBIProviderRepository(handle)
+    override val rawDataRepository: RawDataRepository = JDBIRawDataRepository(handle)
 
-	/**
-	 * Rolls back the transaction
-	 */
-	override fun rollback() {
-		handle.rollback()
-	}
+    /**
+     * Rolls back the transaction
+     */
+    override fun rollback() {
+        handle.rollback()
+    }
 }

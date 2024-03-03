@@ -2,8 +2,10 @@ package dynamicFetchingScheduler.server.service
 
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.domain.ProviderInput
+import dynamicFetchingScheduler.server.domain.ProviderWithData
 import dynamicFetchingScheduler.server.service.errors.AddProviderError
 import dynamicFetchingScheduler.server.service.errors.DeleteProviderError
+import dynamicFetchingScheduler.server.service.errors.GetProviderError
 import dynamicFetchingScheduler.server.service.errors.UpdateProviderError
 import dynamicFetchingScheduler.utils.Either
 
@@ -20,8 +22,6 @@ typealias ProviderSuccess = Pair<Provider, Boolean>
  */
 typealias AddProviderResult = Either<AddProviderError, ProviderSuccess>
 
-
-
 /**
  * Result for updating a provider
  * @see UpdateProviderError
@@ -34,3 +34,9 @@ typealias UpdateProviderResult = Either<UpdateProviderError, ProviderSuccess>
  * @see UpdateProviderError
  */
 typealias DeleteProviderResult = Either<DeleteProviderError, Unit>
+
+/**
+ * Result for getting a provider
+ * @see GetProviderError
+ */
+typealias GetProviderResult = Either<GetProviderError, ProviderWithData>

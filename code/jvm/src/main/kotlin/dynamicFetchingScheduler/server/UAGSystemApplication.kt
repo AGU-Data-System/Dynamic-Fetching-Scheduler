@@ -12,28 +12,28 @@ import org.springframework.web.client.RestTemplate
 @SpringBootApplication
 class UAGSystemApplication {
 
-	/**
-	 * Creates a JDBI instance.
-	 */
-	@Bean
-	fun jdbi() = Jdbi.create(
-		PGSimpleDataSource().apply {
-			setURL(Environment.getDbUrl())
-		}
-	).configureWithAppRequirements()
+    /**
+     * Creates a JDBI instance.
+     */
+    @Bean
+    fun jdbi() = Jdbi.create(
+        PGSimpleDataSource().apply {
+            setURL(Environment.getDbUrl())
+        }
+    ).configureWithAppRequirements()
 
 
-	/**
-	 * Creates a clock.
-	 */
-	@Bean
-	fun clock() = Clock.System
+    /**
+     * Creates a clock.
+     */
+    @Bean
+    fun clock() = Clock.System
 
-	/**
-	 * Creates a RestTemplate.
-	 */
-	@Bean
-	fun restTemplate() = RestTemplate()
+    /**
+     * Creates a RestTemplate.
+     */
+    @Bean
+    fun restTemplate() = RestTemplate()
 
 }
 
@@ -41,5 +41,5 @@ class UAGSystemApplication {
  * Entry point of the application.
  */
 fun main(args: Array<String>) {
-	runApplication<UAGSystemApplication>(*args)
+    runApplication<UAGSystemApplication>(*args)
 }
