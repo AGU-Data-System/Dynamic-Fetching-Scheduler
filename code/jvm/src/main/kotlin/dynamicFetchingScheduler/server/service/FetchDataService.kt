@@ -31,8 +31,9 @@ class FetchDataService(
 		if (response.first != HttpStatus.OK.value()) return // TODO: ERROR With status code
 		transactionManager.run {
 			val provider = it.providerRepository.findByUrl(providerURL) ?: return@run
-			it.rawDataRepository.saveRawData(RawData(provider.id, LocalDateTime.now(), response.second))
-			it.providerRepository.updateLastFetch(providerURL, LocalDateTime.now())
+			val curTime = LocalDateTime.now()
+			it.rawDataRepository.saveRawData(RawData(provider.id, curTime, response.second))
+			it.providerRepository.updateLastFetch(providerURL, curTime)
 			logger.info("Saved data from provider on Database with url: {} and name: {}", providerURL, provider.name)
 		}
 	}
@@ -49,8 +50,13 @@ class FetchDataService(
 			.uri(URI.create(url))
 			.GET()
 			.build()
-		val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-		return response.statusCode() to response.body()
+		try {
+			val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+			return response.statusCode() to response.body()
+		} catch (e: Exception) {
+			logger.error("Error fetching data from provider with url: {} and exception:", url, e)
+			return HttpStatus.INTERNAL_SERVER_ERROR.value() to e.message.toString()
+		}
 	}
 
 	companion object {
