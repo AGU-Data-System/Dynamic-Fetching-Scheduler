@@ -16,7 +16,7 @@ import org.jdbi.v3.core.statement.UnableToExecuteStatementException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class JDBIProviderRepositoryTestInput {
+class JDBIProviderRepositoryTest {
 
 	private val dummyProvider1 = ProviderInput(
 		name = "ipma current day",
@@ -40,6 +40,35 @@ class JDBIProviderRepositoryTestInput {
 	)
 
 	@Test
+	fun `get Active providers`() = testWithHandleAndRollback { handle ->
+		// arrange
+		val repo = JDBIProviderRepository(handle)
+		repo.addProvider(dummyProvider1)
+		repo.addProvider(dummyProvider2)
+		// act
+		val result = repo.getActiveProviders()
+		// assert
+		assertEquals(2, result.size)
+	}
+
+	@Test
+	fun `update provider last fetch field`() = testWithHandleAndRollback { handle ->
+		// arrange
+		val repo = JDBIProviderRepository(handle)
+		val sut = dummyProvider1
+		// act
+		repo.addProvider(sut)
+		val curTime = LocalDateTime.now()
+		repo.updateLastFetch(sut.url, curTime)
+		val result = repo.findByUrl(sut.url)
+		// assert
+		assertNotNull(result)
+		assertNotNull(result.lastFetch)
+		// due to the precision of the database, the last fetch time will be truncated to the second
+		assertEquals(curTime.truncatedTo(ChronoUnit.SECONDS), result.lastFetch?.truncatedTo(ChronoUnit.SECONDS))
+	}
+
+	@Test
 	fun `add provider 1`() = testWithHandleAndRollback { handle ->
 		// arrange
 		val sut = dummyProvider1
@@ -61,22 +90,6 @@ class JDBIProviderRepositoryTestInput {
 		val sut = dummyProvider2
 		val repo = JDBIProviderRepository(handle)
 		// act
-		repo.addProvider(sut)
-		val result = repo.findByUrl(sut.url)
-		// assert
-		assertNotNull(result)
-		assertEquals(sut.name, result.name)
-		assertEquals(sut.url, result.url)
-		assertEquals(sut.frequency, result.frequency)
-		assertEquals(sut.isActive, result.isActive)
-	}
-
-	@Test
-	fun `get provider by url`() = testWithHandleAndRollback { handle ->
-		// arrange
-		val sut = dummyProvider1
-		// act
-		val repo = JDBIProviderRepository(handle)
 		repo.addProvider(sut)
 		val result = repo.findByUrl(sut.url)
 		// assert
@@ -117,35 +130,6 @@ class JDBIProviderRepositoryTestInput {
 	}
 
 	@Test
-	fun `get Active providers`() = testWithHandleAndRollback { handle ->
-		// arrange
-		val repo = JDBIProviderRepository(handle)
-		repo.addProvider(dummyProvider1)
-		repo.addProvider(dummyProvider2)
-		// act
-		val result = repo.getActiveProviders()
-		// assert
-		assertEquals(2, result.size)
-	}
-
-	@Test
-	fun `update provider last fetch field`() = testWithHandleAndRollback { handle ->
-		// arrange
-		val repo = JDBIProviderRepository(handle)
-		val sut = dummyProvider1
-		// act
-		repo.addProvider(sut)
-		val curTime = LocalDateTime.now()
-		repo.updateLastFetch(sut.url, curTime)
-		val result = repo.findByUrl(sut.url)
-		// assert
-		assertNotNull(result)
-		assertNotNull(result.lastFetch)
-		// due to the precision of the database, the last fetch time will be truncated to the second
-		assertEquals(curTime.truncatedTo(ChronoUnit.SECONDS), result.lastFetch?.truncatedTo(ChronoUnit.SECONDS))
-	}
-
-	@Test
 	fun `delete provider`() = testWithHandleAndRollback { handle ->
 		// arrange
 		val repo = JDBIProviderRepository(handle)
@@ -169,6 +153,22 @@ class JDBIProviderRepositoryTestInput {
 		assertFailsWith<IllegalStateException> {
 			repo.deleteProvider(sut)
 		}
+	}
+
+	@Test
+	fun `get provider by url`() = testWithHandleAndRollback { handle ->
+		// arrange
+		val sut = dummyProvider1
+		// act
+		val repo = JDBIProviderRepository(handle)
+		repo.addProvider(sut)
+		val result = repo.findByUrl(sut.url)
+		// assert
+		assertNotNull(result)
+		assertEquals(sut.name, result.name)
+		assertEquals(sut.url, result.url)
+		assertEquals(sut.frequency, result.frequency)
+		assertEquals(sut.isActive, result.isActive)
 	}
 
 	@Test

@@ -14,21 +14,21 @@ import dynamicFetchingScheduler.server.domain.ProviderWithData
  * @property dataList The data of the provider
  */
 data class ProviderWithDataOutputModel(
-    val id: Int,
-    val name: String,
-    val url: String,
-    val frequency: String,
-    val isActive: Boolean,
-    val lastFetch: String?,
-    val dataList: List<ProviderRawDataOutputModel>
+	val id: Int,
+	val name: String,
+	val url: String,
+	val frequency: String,
+	val isActive: Boolean,
+	val lastFetch: String?,
+	val dataList: List<ProviderRawDataOutputModel>
 ) {
-    constructor(provider: ProviderWithData) : this(
-        id = provider.id,
-        name = provider.name,
-        url = provider.url.toString(),
-        frequency = provider.frequency.toString(),
-        isActive = provider.isActive,
-        lastFetch = provider.lastFetch?.toString(),
-        dataList = provider.dataList.map { ProviderRawDataOutputModel(it) }
-    )
+	constructor(provider: ProviderWithData) : this(
+		id = provider.id,
+		name = provider.name,
+		url = provider.url.toString(),
+		frequency = provider.frequency.toString(),
+		isActive = provider.isActive,
+		lastFetch = provider.lastFetch?.toString(),
+		dataList = provider.dataList.map { ProviderRawDataOutputModel(it) }
+	)
 }

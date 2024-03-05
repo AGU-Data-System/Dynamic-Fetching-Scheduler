@@ -17,45 +17,45 @@ import org.springframework.stereotype.Service
  */
 @Service
 class FetchDataService(
-    private val transactionManager: TransactionManager
+	private val transactionManager: TransactionManager
 ) {
-    /**
-     * Fetches the data from the provider and saves it to the database.
-     *
-     * @param providerURL The URL of the provider to fetch from
-     */
-    fun fetchAndSave(providerURL: URL) {
-        logger.info("Fetching data from provider: {}", providerURL)
-        val response = fetch(providerURL.toString())
-        logger.info("Fetched data from provider with status code: {}", response.first)
-        if (response.first != HttpStatus.OK.value()) return // TODO: ERROR With status code
-        transactionManager.run {
-            val provider = it.providerRepository.findByUrl(providerURL) ?: return@run
-            it.rawDataRepository.saveRawData(RawData(provider.id, LocalDateTime.now(), response.second))
-            it.providerRepository.updateLastFetch(providerURL, LocalDateTime.now())
-            logger.info("Saved data from provider on Database with url: {} and name: {}", providerURL, provider.name)
-        }
-    }
+	/**
+	 * Fetches the data from the provider and saves it to the database.
+	 *
+	 * @param providerURL The URL of the provider to fetch from
+	 */
+	fun fetchAndSave(providerURL: URL) {
+		logger.info("Fetching data from provider: {}", providerURL)
+		val response = fetch(providerURL.toString())
+		logger.info("Fetched data from provider with status code: {}", response.first)
+		if (response.first != HttpStatus.OK.value()) return // TODO: ERROR With status code
+		transactionManager.run {
+			val provider = it.providerRepository.findByUrl(providerURL) ?: return@run
+			it.rawDataRepository.saveRawData(RawData(provider.id, LocalDateTime.now(), response.second))
+			it.providerRepository.updateLastFetch(providerURL, LocalDateTime.now())
+			logger.info("Saved data from provider on Database with url: {} and name: {}", providerURL, provider.name)
+		}
+	}
 
-    /**
-     * Makes a request to the given URL.
-     *
-     * @param url The URL to make the request to
-     * @return The response body
-     */
-    private fun fetch(url: String): Response {
-        val client = HttpClient.newHttpClient()
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .GET()
-            .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-        return response.statusCode() to response.body()
-    }
+	/**
+	 * Makes a request to the given URL.
+	 *
+	 * @param url The URL to make the request to
+	 * @return The response body
+	 */
+	private fun fetch(url: String): Response {
+		val client = HttpClient.newHttpClient()
+		val request = HttpRequest.newBuilder()
+			.uri(URI.create(url))
+			.GET()
+			.build()
+		val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+		return response.statusCode() to response.body()
+	}
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(FetchDataService::class.java)
-    }
+	companion object {
+		private val logger = LoggerFactory.getLogger(FetchDataService::class.java)
+	}
 }
 
 typealias Response = Pair<Int, String>

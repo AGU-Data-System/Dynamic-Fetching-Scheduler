@@ -1,6 +1,8 @@
 package dynamicFetchingScheduler.server.repository.jdbi.mappers
 
+import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.domain.ProviderWithData
+import dynamicFetchingScheduler.server.domain.RawData
 import java.net.URL
 import java.sql.ResultSet
 import java.time.Duration
@@ -21,14 +23,21 @@ class ProviderWithDataMapper : RowMapper<ProviderWithData> {
 	 * @return The [ProviderWithData] from the result set
 	 */
 	override fun map(rs: ResultSet, ctx: StatementContext?): ProviderWithData {
-		return ProviderWithData(
-			id = rs.getInt("id"),
+		val providerId = rs.getInt("id")
+		val provider = Provider(
+			id = providerId,
 			name = rs.getString("name"),
 			url = URL(rs.getString("url")),
 			frequency = Duration.ofSeconds(rs.getLong("frequency")),
 			isActive = rs.getBoolean("is_active"),
-			lastFetch = rs.getTimestamp("last_fetched")?.toLocalDateTime(),
-			dataList = emptyList() // TODO: Implement this
+			lastFetch = rs.getTimestamp("last_fetched")?.toLocalDateTime()
 		)
+		val rawData = mutableListOf<RawData>()
+		do {
+			val rawDataTimestamp = rs.getTimestamp("fetch_time")?.toLocalDateTime() ?: break
+			val data = rs.getString("data")
+			rawData.add(RawData(providerId, rawDataTimestamp, data))
+		} while (rs.next())
+		return ProviderWithData(provider, rawData)
 	}
 }

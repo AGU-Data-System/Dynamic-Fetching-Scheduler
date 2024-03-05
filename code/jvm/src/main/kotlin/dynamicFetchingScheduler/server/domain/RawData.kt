@@ -10,7 +10,7 @@ import java.time.LocalDateTime
  * @property data The raw data fetched from the provider
  */
 data class RawData(
-    val providerId: Int,
-    val fetchTime: LocalDateTime,
-    val data: String
+	val providerId: Int,
+	val fetchTime: LocalDateTime,
+	val data: String
 )

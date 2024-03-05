@@ -13,20 +13,20 @@ import org.jdbi.v3.core.statement.StatementContext
  * @see Provider
  */
 class ProviderMapper : RowMapper<Provider> {
-    /**
-     * Maps a row of the result set to a [Provider]
-     * @param rs The result set to map
-     * @param ctx The statement context
-     * @return The [Provider] from the result set
-     */
-    override fun map(rs: ResultSet, ctx: StatementContext?): Provider {
-        return Provider(
-            id = rs.getInt("id"),
-            name = rs.getString("name"),
-            url = URL(rs.getString("url")),
-            frequency = Duration.ofSeconds(rs.getLong("frequency")),
-            isActive = rs.getBoolean("is_active"),
-            lastFetch = rs.getTimestamp("last_fetched")?.toLocalDateTime()
-        )
-    }
+	/**
+	 * Maps a row of the result set to a [Provider]
+	 * @param rs The result set to map
+	 * @param ctx The statement context
+	 * @return The [Provider] from the result set
+	 */
+	override fun map(rs: ResultSet, ctx: StatementContext?): Provider {
+		return Provider(
+			id = rs.getInt("id"),
+			name = rs.getString("name"),
+			url = URL(rs.getString("url")),
+			frequency = Duration.ofSeconds(rs.getLong("frequency")),
+			isActive = rs.getBoolean("is_active"),
+			lastFetch = rs.getTimestamp("last_fetched")?.toLocalDateTime()
+		)
+	}
 }

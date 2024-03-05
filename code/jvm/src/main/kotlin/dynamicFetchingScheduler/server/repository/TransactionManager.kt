@@ -5,8 +5,8 @@ package dynamicFetchingScheduler.server.repository
  */
 interface TransactionManager {
 
-    /**
-     * Runs a transaction and returns the result
-     */
-    fun <R> run(block: (Transaction) -> R): R
+	/**
+	 * Runs a transaction and returns the result
+	 */
+	fun <R> run(block: (Transaction) -> R): R
 }

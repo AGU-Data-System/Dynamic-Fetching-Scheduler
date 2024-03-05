@@ -12,8 +12,8 @@ import java.time.Duration
  * @property isActive Whether the provider is active or not
  */
 data class ProviderInput(
-    val name: String,
-    val url: URL,
-    val frequency: Duration,
-    val isActive: Boolean
+	val name: String,
+	val url: URL,
+	val frequency: Duration,
+	val isActive: Boolean
 )

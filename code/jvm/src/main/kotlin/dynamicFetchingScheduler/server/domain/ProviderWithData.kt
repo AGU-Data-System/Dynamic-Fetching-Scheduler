@@ -14,21 +14,21 @@ import java.time.LocalDateTime
  * @see ProviderRawData
  */
 data class ProviderWithData(
-    val id: Int,
-    val name: String,
-    val url: URL,
-    val frequency: Duration,
-    val isActive: Boolean,
-    val lastFetch: LocalDateTime?,
-    val dataList: List<ProviderRawData>
+	val id: Int,
+	val name: String,
+	val url: URL,
+	val frequency: Duration,
+	val isActive: Boolean,
+	val lastFetch: LocalDateTime?,
+	val dataList: List<ProviderRawData>
 ) {
-    constructor(provider: Provider, dataList: List<RawData>) : this(
-        id = provider.id,
-        name = provider.name,
-        url = provider.url,
-        frequency = provider.frequency,
-        isActive = provider.isActive,
-        lastFetch = provider.lastFetch,
-        dataList = dataList.map { ProviderRawData(it) }
-    )
+	constructor(provider: Provider, dataList: List<RawData>) : this(
+		id = provider.id,
+		name = provider.name,
+		url = provider.url,
+		frequency = provider.frequency,
+		isActive = provider.isActive,
+		lastFetch = provider.lastFetch,
+		dataList = dataList.map { ProviderRawData(it) }
+	)
 }
