@@ -20,13 +20,14 @@ data class Provider(
 	val url: URL,
 	val frequency: Duration,
 	val isActive: Boolean,
-	val lastFetch: LocalDateTime? = null
+	val lastFetch: LocalDateTime?
 ) {
-	constructor(id: Int, providerInput: ProviderInput) : this(
+	constructor(id: Int, providerInput: ProviderInput, lastFetch: LocalDateTime? = null) : this(
 		id = id,
 		name = providerInput.name,
 		url = providerInput.url,
 		frequency = providerInput.frequency,
-		isActive = providerInput.isActive
+		isActive = providerInput.isActive,
+		lastFetch = lastFetch
 	)
 }

@@ -116,7 +116,8 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 			.mapTo<Int>()
 			.one()
 
-		val newProvider = Provider(providerId, provider)
+		val newProvider = Provider(providerId, provider, oldProvider.lastFetch)
+
 		logger.info("Updated provider: {}", newProvider)
 
 		return newProvider
