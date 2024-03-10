@@ -7,11 +7,14 @@ import dynamicFetchingScheduler.server.service.errors.AddProviderError
 import dynamicFetchingScheduler.server.service.errors.DeleteProviderError
 import dynamicFetchingScheduler.server.service.errors.GetProviderError
 import dynamicFetchingScheduler.server.service.errors.UpdateProviderError
+import dynamicFetchingScheduler.utils.PaginationResult
 import dynamicFetchingScheduler.utils.failure
 import dynamicFetchingScheduler.utils.success
 import java.net.URL
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
+import kotlin.math.ceil
 
 @Service
 class ProviderService(
@@ -93,11 +96,33 @@ class ProviderService(
 	/**
 	 * Gets all providers and their data.
 	 *
-	 * @return The list of providers and their data
+	 * @param beginDate The beginning date of the data
+	 * @param endDate The end date of the data
+	 * @param page The page number to get
+	 * @param size The size of each page
+	 *
+	 * @return A result containing the list of providers with their data, and the pagination information
 	 */
-	fun getAllProviders(): List<ProviderWithData> {
+	fun getProvidersWithData(
+		beginDate: LocalDateTime,
+		endDate: LocalDateTime,
+		page: Int,
+		size: Int
+	): PaginationResult<ProviderWithData> {
 		return transactionManager.run {
-			it.providerRepository.getProvidersWithData()
+			val providers = it.providerRepository.findPaginatedProviders(page, size)
+			val totalProviders = it.providerRepository.countTotalProviders()
+			val totalPages = ceil(totalProviders.toDouble() / size).toInt()
+
+			val providerData = providers.map { provider ->
+				//TODO: Find a better way to limit amount of data fetched
+				val providerDataPage = 0
+				val providerDataSize = 2
+				val dataList = it.providerRepository.findProviderDataWithinDateRange(provider.id, beginDate, endDate, providerDataPage, providerDataSize)
+				ProviderWithData(provider, dataList)
+			}
+
+			PaginationResult(providerData, totalProviders, page, totalPages)
 		}
 	}
 
@@ -105,13 +130,28 @@ class ProviderService(
 	 * Gets a provider and its data.
 	 *
 	 * @param url The URL of the provider to get
+	 * @param beginDate The beginning date of the data
+	 * @param endDate The end date of the data
+	 * @param page The page number to get
+	 * @param size The size of each page
+	 *
 	 * @return The provider and its data
 	 */
-	fun getProvider(url: URL): GetProviderResult {
+	fun getProvider(
+		url: URL,
+		beginDate: LocalDateTime,
+		endDate: LocalDateTime,
+		page: Int,
+		size: Int
+	): GetProviderResult {
 		return transactionManager.run {
 			val provider = it.providerRepository.findByUrl(url) ?: return@run failure(GetProviderError.ProviderNotFound)
-			val dataList = it.providerRepository.getProviderData(provider.id)
-			success(ProviderWithData(provider, dataList))
+			val dataList = it.providerRepository.findProviderDataWithinDateRange(provider.id, beginDate, endDate, page, size)
+			val totalItems = it.providerRepository.countTotalProviderDataWithinDateRange(provider.id, beginDate, endDate)
+			val totalPages = ceil(totalItems.toDouble() / size).toInt()
+
+			val pageResult = PaginationResult(dataList, totalItems, page, totalPages)
+			success(Pair(provider, pageResult))
 		}
 	}
 

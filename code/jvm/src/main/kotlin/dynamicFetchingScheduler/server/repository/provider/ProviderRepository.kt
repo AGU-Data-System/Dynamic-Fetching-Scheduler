@@ -2,7 +2,6 @@ package dynamicFetchingScheduler.server.repository.provider
 
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.domain.ProviderInput
-import dynamicFetchingScheduler.server.domain.ProviderWithData
 import dynamicFetchingScheduler.server.domain.RawData
 import java.net.URL
 import java.time.LocalDateTime
@@ -46,7 +45,7 @@ interface ProviderRepository {
 	 *
 	 * @param url The URL of the provider to delete
 	 */
-	fun deleteProvider(url: URL): Int //TODO: check
+	fun deleteProvider(url: URL): Int
 
 	/**
 	 * Get a provider from the database.
@@ -57,17 +56,49 @@ interface ProviderRepository {
 	fun findByUrl(url: URL): Provider?
 
 	/**
-	 * Get all providers from the database.
+	 * Count the total number of providers in the database.
 	 *
-	 * @return The list of providers
+	 * @return The total number of providers
 	 */
-	fun getProvidersWithData(): List<ProviderWithData>
+	fun countTotalProviders(): Int
 
 	/**
-	 * Get the data of a provider from the database.
+	 * Count the total number of data for a provider in the database within a date range.
 	 *
-	 * @param id The URL of the provider to get
+	 * @param providerId The ID of the provider to get
+	 * @param beginDate The beginning date of the data
+	 * @param endDate The end date of the data
+	 *
+	 * @return The total number of data
+	 */
+	fun countTotalProviderDataWithinDateRange(providerId: Int, beginDate: LocalDateTime, endDate: LocalDateTime): Int
+
+	/**
+	 * Get all providers from the database, paginated.
+	 *
+	 * @param page The page number to get
+	 * @param size The size of each page
+	 *
+	 * @return The list of providers, and the pagination information
+	 */
+	fun findPaginatedProviders(page: Int, size: Int): List<Provider>
+
+	/**
+	 * Get the data of a provider from the database, paginated within a date range.
+	 *
+	 * @param providerId The ID of the provider to get
+	 * @param beginDate The beginning date of the data
+	 * @param endDate The end date of the data
+	 * @param page The page number to get
+	 * @param size The size of each page
+	 *
 	 * @return The provider
 	 */
-	fun getProviderData(id: Int): List<RawData> // TODO: Check move to raw data repository
+	fun findProviderDataWithinDateRange(
+		providerId: Int,
+		beginDate: LocalDateTime,
+		endDate: LocalDateTime,
+		page: Int,
+		size: Int
+	): List<RawData>
 }

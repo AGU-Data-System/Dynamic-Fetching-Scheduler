@@ -2,13 +2,12 @@ package dynamicFetchingScheduler.server.repository.provider
 
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.domain.ProviderInput
-import dynamicFetchingScheduler.server.domain.ProviderWithData
 import dynamicFetchingScheduler.server.domain.RawData
-import java.net.URL
-import java.time.LocalDateTime
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import org.slf4j.LoggerFactory
+import java.net.URL
+import java.time.LocalDateTime
 
 /**
  * A JDBI implementation of the [ProviderRepository].
@@ -169,44 +168,98 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	}
 
 	/**
-	 * Get all providers from the database.
+	 * Get all providers from the database, paginated.
 	 *
-	 * @return The list of all providers
+	 * @param page The page number to get
+	 * @param size The size of each page
 	 */
-	override fun getProvidersWithData(): List<ProviderWithData> {
+	override fun findPaginatedProviders(page: Int, size: Int): List<Provider> {
+		val offset = page * size
 
-		logger.info("Fetching providers from database")
+		val providersQuery = """
+			SELECT id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched
+			FROM provider
+			ORDER BY id
+			LIMIT :size OFFSET :offset
+    	""".trimIndent()
 
-		val providers = handle.createQuery(
-			"""
-            SELECT p.id, p.name, p.url, extract(epoch from p.frequency) as frequency, p.is_active, p.last_fetched, 
-            r.fetch_time, r.data
-            FROM provider p
-            LEFT JOIN raw_data r ON p.id = r.provider_id 
-            ORDER BY p.id, r.fetch_time
-            """.trimIndent()
-		)
-			.mapTo<ProviderWithData>()
+		return handle.createQuery(providersQuery)
+			.bind("size", size)
+			.bind("offset", offset)
+			.mapTo<Provider>()
 			.list()
-
-		logger.info("Fetched {} providers from database", providers.size)
-
-		return providers
 	}
 
 	/**
-	 * Get the data of a provider from the database.
+	 * Get data of a provider from the database, paginated.
 	 *
-	 * @param id The URL of the provider to get
-	 * @return The provider
+	 * @param providerId The ID of the provider to get data for
+	 * @param beginDate The beginning date of the data
+	 * @param endDate The end date of the data
+	 * @param page The page number to get
+	 * @param size The size of each page
 	 */
-	override fun getProviderData(id: Int): List<RawData> {
-		logger.info("Fetching data for provider: {}", id)
+	override fun findProviderDataWithinDateRange(providerId: Int, beginDate: LocalDateTime, endDate: LocalDateTime, page: Int, size: Int): List<RawData> {
+		val offset = page * size
 
-		return handle.createQuery("SELECT * FROM raw_data WHERE provider_id = :id")
-			.bind("id", id)
+		val dataQuery = """
+        SELECT provider_id, fetch_time, data
+        FROM raw_data
+        WHERE provider_id = :providerId AND fetch_time BETWEEN :beginDate AND :endDate
+        ORDER BY fetch_time
+		LIMIT :size OFFSET :offset
+    """.trimIndent()
+
+		return handle.createQuery(dataQuery)
+			.bind("providerId", providerId)
+			.bind("beginDate", beginDate)
+			.bind("endDate", endDate)
+			.bind("size", size)
+			.bind("offset", offset)
 			.mapTo<RawData>()
 			.list()
+	}
+
+
+	/**
+	 * Count the total number of providers in the database.
+	 *
+	 * @return The total number of providers
+	 */
+	override fun countTotalProviders(): Int {
+		val countQuery = "SELECT COUNT(*) FROM provider"
+
+		return handle.createQuery(countQuery)
+			.mapTo<Int>()
+			.one()
+	}
+
+	/**
+	 * Count the total number of data for a provider in the database within a date range.
+	 *
+	 * @param providerId The ID of the provider to get
+	 * @param beginDate The beginning date of the data
+	 * @param endDate The end date of the data
+	 *
+	 * @return The total number of data
+	 */
+	override fun countTotalProviderDataWithinDateRange(
+		providerId: Int,
+		beginDate: LocalDateTime,
+		endDate: LocalDateTime
+	): Int {
+		val countQuery = """
+			SELECT COUNT(*)
+			FROM raw_data
+			WHERE provider_id = :providerId AND fetch_time BETWEEN :beginDate AND :endDate
+		""".trimIndent()
+
+		return handle.createQuery(countQuery)
+			.bind("providerId", providerId)
+			.bind("beginDate", beginDate)
+			.bind("endDate", endDate)
+			.mapTo<Int>()
+			.one()
 	}
 
 	companion object {

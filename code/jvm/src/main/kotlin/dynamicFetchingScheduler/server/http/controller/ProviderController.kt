@@ -1,15 +1,15 @@
 package dynamicFetchingScheduler.server.http.controller
 
+import dynamicFetchingScheduler.server.domain.ProviderWithData
 import dynamicFetchingScheduler.server.http.URIs
 import dynamicFetchingScheduler.server.http.controller.models.GetProviderOutputModel
 import dynamicFetchingScheduler.server.http.controller.models.ProviderInputModel
 import dynamicFetchingScheduler.server.http.controller.models.ProviderWithDataOutputModel
-import dynamicFetchingScheduler.server.http.controller.models.toOutputModel
 import dynamicFetchingScheduler.server.service.ProviderService
 import dynamicFetchingScheduler.utils.Failure
 import dynamicFetchingScheduler.utils.Success
-import java.net.URL
 import org.slf4j.LoggerFactory
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.net.URL
+import java.time.LocalDateTime
+import java.util.*
 
 /**
  * Controller for fetching data from the providers.
@@ -103,13 +106,27 @@ class ProviderController(
 
 	/**
 	 * Gets all providers and their data.
+	 *
+	 * @param beginDate The beginning date of the data
+	 * @param endDate The end date of the data
+	 * @param page The page number to get, default is 0
+	 * @param size The size of each page, default is 10
 	 */
 	@GetMapping(URIs.PROVIDERS)
-	fun getAllInfoAndData(): ResponseEntity<*> {
+	fun getProvidersAndData(
+		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) beginDate: LocalDateTime,
+		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endDate: Optional<LocalDateTime>,
+		@RequestParam(defaultValue = "0") page: Int,
+		@RequestParam(defaultValue = "10") size: Int
+	): ResponseEntity<*> {
 		logger.info("Fetching all providers")
-		val result = providerService.getAllProviders()
+
+		val result = providerService.getProvidersWithData(beginDate, endDate.orElse(LocalDateTime.now()), page, size)
 		logger.info("Providers fetched successfully")
-		return ResponseEntity.ok().body(result.toOutputModel())
+		return ResponseEntity
+			.ok()
+			.addPaginationHeaders(result.totalItems, result.totalPages, result.currentPage, result.items.size)
+			.body(result.items.map { ProviderWithDataOutputModel(it) })
 	}
 
 	/**
@@ -118,12 +135,24 @@ class ProviderController(
 	 * @param url The URL of the provider to get
 	 */
 	@GetMapping(URIs.PROVIDER)
-	fun getInfoAndData(@RequestParam url: String): ResponseEntity<*> {
+	fun getProviderAndData(
+		@RequestParam url: String,
+		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) beginDate: LocalDateTime,
+		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endDate: Optional<LocalDateTime>,
+		@RequestParam(defaultValue = "0") page: Int,
+		@RequestParam(defaultValue = "10") size: Int
+	): ResponseEntity<*> {
 		val providerURL = URL(url)
-		return when (val result = providerService.getProvider(providerURL)) {
+		return when (val result = providerService.getProvider(providerURL, beginDate, endDate.orElse(LocalDateTime.now()), page, size)) {
 			is Success -> {
 				logger.info("Provider fetched successfully")
-				ResponseEntity.ok().body(ProviderWithDataOutputModel(result.value))
+				val provider = result.value.first
+				val pagedData = result.value.second
+				val providerWithData = ProviderWithData(provider, pagedData.items)
+				ResponseEntity
+					.ok()
+					.addPaginationHeaders(pagedData.totalItems, pagedData.totalPages, pagedData.currentPage, pagedData.items.size)
+					.body(ProviderWithDataOutputModel(providerWithData))
 			}
 
 			is Failure -> {
@@ -133,3 +162,4 @@ class ProviderController(
 		}
 	}
 }
+

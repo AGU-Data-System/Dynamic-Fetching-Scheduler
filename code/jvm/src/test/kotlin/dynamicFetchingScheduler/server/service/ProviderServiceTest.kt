@@ -140,7 +140,7 @@ class ProviderServiceTest {
 		// act
 		service.addProvider(sut1)
 		service.addProvider(sut2)
-		val result = service.getAllProviders()
+		val result = service.getProvidersWithData()
 
 		// assert
 		assertEquals(2, result.size)
