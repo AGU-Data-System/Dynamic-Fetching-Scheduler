@@ -8,9 +8,11 @@ import dynamicFetchingScheduler.server.domain.ProviderWithData
  * @property providers The list of providers with their data
  */
 data class ListProviderWithDataOutputModel(
-	val providers: List<ProviderWithDataOutputModel>
+	val providers: List<ProviderWithDataOutputModel>,
+	val size : Int = providers.size
 )
 
 fun List<ProviderWithData>.toOutputModel() = ListProviderWithDataOutputModel(
-	providers = this.map { ProviderWithDataOutputModel(it) }
+	providers = this.map { ProviderWithDataOutputModel(it) },
+	size = this.size
 )

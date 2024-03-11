@@ -5,9 +5,13 @@ import dynamicFetchingScheduler.server.http.URIs
 import dynamicFetchingScheduler.server.http.controller.models.GetProviderOutputModel
 import dynamicFetchingScheduler.server.http.controller.models.ProviderInputModel
 import dynamicFetchingScheduler.server.http.controller.models.ProviderWithDataOutputModel
+import dynamicFetchingScheduler.server.http.controller.models.toOutputModel
 import dynamicFetchingScheduler.server.service.ProviderService
 import dynamicFetchingScheduler.utils.Failure
 import dynamicFetchingScheduler.utils.Success
+import java.net.URL
+import java.time.LocalDateTime
+import java.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
@@ -17,9 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.net.URL
-import java.time.LocalDateTime
-import java.util.*
 
 /**
  * Controller for fetching data from the providers.
@@ -51,7 +52,7 @@ class ProviderController(
 					result.value.first,
 					if (result.value.second) "active" else "inactive"
 				)
-				ResponseEntity.ok().body(GetProviderOutputModel(result.value.first))
+				ResponseEntity.ok().body(GetProviderOutputModel(result.value.first)) // TODO change to 201
 			}
 
 			is Failure -> {
@@ -73,7 +74,8 @@ class ProviderController(
 		return when (val result = providerService.updateProvider(newProvider)) {
 			is Success -> {
 				logger.info("Provider updated successfully")
-				ResponseEntity.ok().body("")
+				logger.info("The updated provider is: {} and is {}", result.value.first, result.value.second)
+				ResponseEntity.ok().body(GetProviderOutputModel(result.value.first))
 			}
 
 			is Failure -> {
@@ -94,7 +96,7 @@ class ProviderController(
 		return when (val result = providerService.deleteProvider(providerURL)) {
 			is Success -> {
 				logger.info("Provider deleted successfully")
-				ResponseEntity.ok().body("")
+				ResponseEntity.noContent().build()
 			}
 
 			is Failure -> {
@@ -126,7 +128,7 @@ class ProviderController(
 		return ResponseEntity
 			.ok()
 			.addPaginationHeaders(result.totalItems, result.totalPages, result.currentPage, result.items.size)
-			.body(result.items.map { ProviderWithDataOutputModel(it) })
+			.body(result.items.toOutputModel())
 	}
 
 	/**
