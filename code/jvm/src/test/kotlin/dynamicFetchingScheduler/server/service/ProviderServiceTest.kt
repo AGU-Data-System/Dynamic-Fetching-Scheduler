@@ -2,7 +2,6 @@ package dynamicFetchingScheduler.server.service
 
 import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.failureOrNull
-import dynamicFetchingScheduler.server.service.errors.AddProviderError
 import dynamicFetchingScheduler.server.service.errors.DeleteProviderError
 import dynamicFetchingScheduler.server.service.errors.UpdateProviderError
 import dynamicFetchingScheduler.server.successOrNull
@@ -11,6 +10,7 @@ import dynamicFetchingScheduler.utils.Failure
 import dynamicFetchingScheduler.utils.Success
 import java.net.URL
 import java.time.Duration
+import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -37,15 +37,15 @@ class ProviderServiceTest {
 
 		// assert
 		assert(result is Success)
-		assertEquals(result.successOrNull()?.first?.name, dummyProvider.name)
-		assertEquals(result.successOrNull()?.first?.url, dummyProvider.url)
-		assertEquals(result.successOrNull()?.first?.frequency, dummyProvider.frequency)
-		assertEquals(result.successOrNull()?.first?.isActive, dummyProvider.isActive)
-		assertEquals(result.successOrNull()?.second, result.successOrNull()?.first?.isActive)
+		assertEquals(result.successOrNull()?.provider?.name, dummyProvider.name)
+		assertEquals(result.successOrNull()?.provider?.url, dummyProvider.url)
+		assertEquals(result.successOrNull()?.provider?.frequency, dummyProvider.frequency)
+		assertEquals(result.successOrNull()?.provider?.isActive, dummyProvider.isActive)
+		assertEquals(result.successOrNull()?.isScheduled, result.successOrNull()?.provider?.isActive)
 	}
 
 	@Test
-	fun `add provider with not unique url should fail`() = testWithTransactionManagerAndRollback { tm ->
+	fun `add provider with not unique url`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
 		val sut = dummyProvider
 		val fetchDataService = FetchDataService(tm)
@@ -57,8 +57,11 @@ class ProviderServiceTest {
 		val result = service.addProvider(sut)
 		// assert
 
-		assert(result is Failure)
-		assert(result.failureOrNull() is AddProviderError.ProviderAlreadyExists)
+		assert(result is Success)
+		assertEquals(result.successOrNull()?.provider?.name, dummyProvider.name)
+		assertEquals(result.successOrNull()?.provider?.url, dummyProvider.url)
+		assertEquals(result.successOrNull()?.provider?.frequency, dummyProvider.frequency)
+		assertEquals(result.successOrNull()?.provider?.isActive, dummyProvider.isActive)
 	}
 
 	@Test
@@ -70,12 +73,14 @@ class ProviderServiceTest {
 		val service = ProviderService(tm, schedulerService)
 
 		// act
-		service.addProvider(sut)
-		val result = service.updateProvider(sut.copy(isActive = false))
+		val oldProvider = service.addProvider(sut)
+		require(oldProvider is Success)
+
+		val result = service.updateProvider(oldProvider.value.provider.id, sut.copy(isActive = false))
 		// assert
 		assert(result is Success)
-		assertEquals(result.successOrNull()?.first?.isActive, false)
-		assertEquals(result.successOrNull()?.second, result.successOrNull()?.first?.isActive)
+		assertEquals(result.successOrNull()?.provider?.isActive, false)
+		assertEquals(result.successOrNull()?.isScheduled, result.successOrNull()?.provider?.isActive)
 	}
 
 	@Test
@@ -84,10 +89,9 @@ class ProviderServiceTest {
 		val fetchDataService = FetchDataService(tm)
 		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
 		val service = ProviderService(tm, schedulerService)
-		val unExistingProviderURL = URL("https://unexisting.com")
 
 		// act
-		val result = service.updateProvider(dummyProvider.copy(url = unExistingProviderURL))
+		val result = service.updateProvider(Int.MAX_VALUE, dummyProvider.copy(isActive = false ))
 
 		// assert
 		assert(result is Failure)
@@ -103,8 +107,9 @@ class ProviderServiceTest {
 		val service = ProviderService(tm, schedulerService)
 
 		// act
-		service.addProvider(sut)
-		val result = service.deleteProvider(sut.url)
+		val provider = service.addProvider(sut)
+		require(provider is Success)
+		val result = service.deleteProvider(provider.value.provider.id)
 
 		// assert
 		assert(result is Success)
@@ -117,10 +122,9 @@ class ProviderServiceTest {
 		val fetchDataService = FetchDataService(tm)
 		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
 		val service = ProviderService(tm, schedulerService)
-		val unExistingProviderURL = URL("https://unexisting.com")
 
 		// act
-		val result = service.deleteProvider(unExistingProviderURL)
+		val result = service.deleteProvider(Int.MAX_VALUE)
 
 		// assert
 		assert(result is Failure)
@@ -140,7 +144,7 @@ class ProviderServiceTest {
 		// act
 		service.addProvider(sut1)
 		service.addProvider(sut2)
-		val result = service.getProvidersWithData()
+		val result = service.getProviders()
 
 		// assert
 		assertEquals(2, result.size)
@@ -163,14 +167,15 @@ class ProviderServiceTest {
 		val service = ProviderService(tm, schedulerService)
 
 		// act
-		service.addProvider(sut)
-		val result = service.getProviderWithData(sut.url)
+		val provider = service.addProvider(sut)
+		require(provider is Success)
+		val result = service.getProviderWithData(provider.value.provider.id, LocalDateTime.now(), LocalDateTime.now(), 0, 10)
 		// assert
 		assert(result is Success)
-		assertEquals(result.successOrNull()?.name, sut.name)
-		assertEquals(result.successOrNull()?.url, sut.url)
-		assertEquals(result.successOrNull()?.frequency, sut.frequency)
-		assertEquals(result.successOrNull()?.isActive, sut.isActive)
+		assertEquals(result.successOrNull()?.provider?.name, sut.name)
+		assertEquals(result.successOrNull()?.provider?.url, sut.url)
+		assertEquals(result.successOrNull()?.provider?.frequency, sut.frequency)
+		assertEquals(result.successOrNull()?.provider?.isActive, sut.isActive)
 	}
 
 }

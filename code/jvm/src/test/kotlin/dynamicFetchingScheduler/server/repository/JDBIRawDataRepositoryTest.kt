@@ -35,15 +35,17 @@ class JDBIRawDataRepositoryTest {
 		val rawDataRepo = JDBIRawDataRepository(handle)
 		val jsonData = "{\"dummy\": \"data\"}"
 
-		providerRepo.addProvider(dummyProvider)
+		val provider = providerRepo.addProvider(dummyProvider)
 
 		// act
-		val providerSut = providerRepo.find(dummyProvider.url)
+		val providerSut = providerRepo.find(provider.id)
 		assertNotNull(providerSut)
+		val beginTime = LocalDateTime.now()
+		Thread.sleep(Duration.ofSeconds(1).toMillis())
 		val rawDataSut = RawData(providerSut!!.id, LocalDateTime.now(), jsonData)
 		rawDataRepo.saveRawData(rawDataSut)
 
-		val result = providerRepo.getProviderData(providerSut.id)
+		val result = providerRepo.findProviderDataWithinDateRange(providerSut.id, beginTime, LocalDateTime.now(), 0, 1000)
 
 		// assert
 		assertEquals(1, result.size)
@@ -59,10 +61,10 @@ class JDBIRawDataRepositoryTest {
 		val rawDataRepo = JDBIRawDataRepository(handle)
 		val stringData = "dummy data"
 
-		providerRepo.addProvider(dummyProvider)
+		val provider = providerRepo.addProvider(dummyProvider)
 
 		// act
-		val providerSut = providerRepo.find(dummyProvider.url)
+		val providerSut = providerRepo.find(provider.id)
 		assertNotNull(providerSut)
 		val rawDataSut = RawData(providerSut!!.id, LocalDateTime.now(), stringData)
 

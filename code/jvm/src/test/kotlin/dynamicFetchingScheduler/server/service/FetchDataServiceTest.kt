@@ -4,6 +4,7 @@ import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.testWithTransactionManagerAndRollback
 import java.net.URL
 import java.time.Duration
+import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
@@ -16,25 +17,31 @@ class FetchDataServiceTest {
 		isActive = true
 	)
 
+	private val testPageNr = 0
+	private val testPageSize = 100
+
 	@Test
 	fun `fetch and save data`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
 		val service = FetchDataService(tm)
-		val sut = dummyProviderInput
+		val sut = dummyProviderInput.copy(frequency = Duration.ofSeconds(5))
+		val beginTime = LocalDateTime.now()
 		val provider = tm.run {
-			it.providerRepository.addProvider(sut)
-			return@run it.providerRepository.find(sut.url)
+			return@run it.providerRepository.addProvider(sut)
 		}
+		Thread.sleep(Duration.ofSeconds(15).toMillis())
 		assertNotNull(provider)
-		// act
-		service.fetchAndSave(provider.url)
 
-		val result = tm.run { t ->
-			return@run t.providerRepository.getProvidersWithData().first { it.url.sameFile(sut.url) }
+		// act
+		service.fetchAndSave(provider.id, provider.url)
+
+		val result = tm.run {
+			it.providerRepository.findProviderDataWithinDateRange(provider.id, beginTime, LocalDateTime.now(), testPageNr, testPageSize)
 		}
+
 		// assert
 		assertNotNull(result)
-		assert(result.dataList.isNotEmpty())
+		assert(result.isNotEmpty())
 	}
 
 	@Test
@@ -42,19 +49,23 @@ class FetchDataServiceTest {
 		// arrange
 		val service = FetchDataService(tm)
 		val sut = dummyProviderInput.copy(url = URL("https://dummyproject.org/"))
+		val beginTime = LocalDateTime.now()
 		val provider = tm.run {
 			it.providerRepository.addProvider(sut)
-			return@run it.providerRepository.find(sut.url)
 		}
+		Thread.sleep(Duration.ofSeconds(15).toMillis())
+		val endTime = LocalDateTime.now()
 		assertNotNull(provider)
-		// act
-		service.fetchAndSave(provider.url)
 
-		val result = tm.run { t ->
-			return@run t.providerRepository.getProvidersWithData().first { it.url.sameFile(sut.url) }
+		// act
+		service.fetchAndSave(provider.id, provider.url)
+
+		val result = tm.run {
+			it.providerRepository.findProviderDataWithinDateRange(provider.id, beginTime, endTime, testPageNr, testPageSize)
 		}
+
 		// assert
 		assertNotNull(result)
-		assert(result.dataList.isEmpty())
+		assert(result.isEmpty())
 	}
 }

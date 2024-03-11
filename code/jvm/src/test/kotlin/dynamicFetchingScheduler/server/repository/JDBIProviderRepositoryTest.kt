@@ -12,7 +12,6 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import org.jdbi.v3.core.statement.UnableToExecuteStatementException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -57,10 +56,10 @@ class JDBIProviderRepositoryTest {
 		val repo = JDBIProviderRepository(handle)
 		val sut = dummyProvider1
 		// act
-		repo.addProvider(sut)
+		val addedProvider = repo.addProvider(sut)
 		val curTime = LocalDateTime.now()
-		repo.updateLastFetch(sut.url, curTime)
-		val result = repo.find(sut.url)
+		repo.updateLastFetch(addedProvider.id, curTime)
+		val result = repo.find(addedProvider.id)
 		// assert
 		assertNotNull(result)
 		assertNotNull(result.lastFetch)
@@ -74,8 +73,8 @@ class JDBIProviderRepositoryTest {
 		val sut = dummyProvider1
 		val repo = JDBIProviderRepository(handle)
 		// act
-		repo.addProvider(sut)
-		val result = repo.find(sut.url)
+		val addedProvider = repo.addProvider(sut)
+		val result = repo.find(addedProvider.id)
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)
@@ -90,8 +89,8 @@ class JDBIProviderRepositoryTest {
 		val sut = dummyProvider2
 		val repo = JDBIProviderRepository(handle)
 		// act
-		repo.addProvider(sut)
-		val result = repo.find(sut.url)
+		val addedProvider = repo.addProvider(sut)
+		val result = repo.find(addedProvider.id)
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)
@@ -105,10 +104,10 @@ class JDBIProviderRepositoryTest {
 		// arrange
 		val sut = dummyProvider1
 		val repo = JDBIProviderRepository(handle)
-		repo.addProvider(sut)
+		val addedProvider = repo.addProvider(sut)
 		// act
-		repo.updateProvider(sut.copy(isActive = false))
-		val result = repo.find(sut.url)
+		repo.updateProvider(addedProvider.id, sut.copy(isActive = false))
+		val result = repo.find(addedProvider.id)
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)
@@ -118,15 +117,20 @@ class JDBIProviderRepositoryTest {
 	}
 
 	@Test
-	fun `update provider with a not unique url should fail`() = testWithHandleAndRollback { handle ->
+	fun `update provider with a not unique url`() = testWithHandleAndRollback { handle ->
 		// arrange
 		val provider = dummyProvider1
 		val repo = JDBIProviderRepository(handle)
 		repo.addProvider(provider)
-		// act and assert
-		assertFailsWith<UnableToExecuteStatementException> {
-			repo.addProvider(provider)
-		}
+
+		// act
+		val result = repo.addProvider(provider)
+
+		// assert
+		assertEquals(provider.url, result.url)
+		assertEquals(provider.frequency, result.frequency)
+		assertEquals(provider.isActive, result.isActive)
+		assertEquals(provider.name, result.name)
 	}
 
 	@Test
@@ -134,12 +138,12 @@ class JDBIProviderRepositoryTest {
 		// arrange
 		val repo = JDBIProviderRepository(handle)
 		val sut = dummyProvider1
-		repo.addProvider(sut)
-		val findAfterInsert = repo.find(sut.url)
+		val addedProvider = repo.addProvider(sut)
+		val findAfterInsert = repo.find(addedProvider.id)
 		assertNotNull(findAfterInsert)
 		// act
-		repo.deleteProvider(sut.url)
-		val result = repo.find(sut.url)
+		repo.deleteProvider(addedProvider.id)
+		val result = repo.find(addedProvider.id)
 		// assert
 		assertNull(result)
 	}
@@ -148,10 +152,9 @@ class JDBIProviderRepositoryTest {
 	fun `delete not existing provider should fail`() = testWithHandleAndRollback { handle ->
 		// arrange
 		val repo = JDBIProviderRepository(handle)
-		val sut = URL("https://notInDB.xpto")
 		// act and assert
 		assertFailsWith<IllegalStateException> {
-			repo.deleteProvider(sut)
+			repo.deleteProvider(Int.MAX_VALUE)
 		}
 	}
 
@@ -161,8 +164,8 @@ class JDBIProviderRepositoryTest {
 		val sut = dummyProvider1
 		// act
 		val repo = JDBIProviderRepository(handle)
-		repo.addProvider(sut)
-		val result = repo.find(sut.url)
+		val addedProvider = repo.addProvider(sut)
+		val result = repo.find(addedProvider.id)
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)
@@ -172,29 +175,31 @@ class JDBIProviderRepositoryTest {
 	}
 
 	@Test
-	fun `get providers with data`() = testWithHandleAndRollback { handle ->
+	fun `get all providers`() = testWithHandleAndRollback { handle ->
 		// arrange
 		val repo = JDBIProviderRepository(handle)
 		val sut1 = dummyProvider1
 		val sut2 = dummyProvider2
 		// act
-		repo.addProvider(sut1)
-		repo.addProvider(sut2)
-		val result = repo.getProvidersWithData()
+		val addedProvider1 = repo.addProvider(sut1)
+		val addedProvider2 = repo.addProvider(sut2)
+		val result = repo.allProviders()
 		// assert
 		assertEquals(2, result.size)
-		assertTrue(result.first().dataList.isEmpty())
-		assertTrue(result.last().dataList.isEmpty())
+		assertTrue(result.first().id == addedProvider1.id || result.first().id == addedProvider2.id)
 	}
 
 	@Test
 	fun `get provider data`() = testWithHandleAndRollback { handle ->
 		// arrange
 		val repo = JDBIProviderRepository(handle)
-		val sut = dummyProvider1
+		val sut = dummyProvider1.copy(frequency = Duration.ofSeconds(10))
+		val beginTime = LocalDateTime.now()
 		// act
 		val addedProvider = repo.addProvider(sut)
-		val result = repo.getProviderData(addedProvider.id)
+		Thread.sleep(35 * 1000) // sleep for 30 seconds
+		val endTime = LocalDateTime.now()
+		val result = repo.findProviderDataWithinDateRange(addedProvider.id, beginTime, endTime, 0, 10)
 		// assert
 		assertNotNull(result)
 		assertTrue(result.all { it.providerId == addedProvider.id })
