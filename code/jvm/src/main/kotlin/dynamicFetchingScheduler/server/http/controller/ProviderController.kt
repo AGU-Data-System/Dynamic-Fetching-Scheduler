@@ -51,7 +51,7 @@ class ProviderController(
 					result.value.first,
 					if (result.value.second) "active" else "inactive"
 				)
-				ResponseEntity.ok().body(GetProviderOutputModel(result.value.first))
+				ResponseEntity.ok().body(GetProviderOutputModel(result.value.first)) //TODO: Should be 201, with location header
 			}
 
 			is Failure -> {
@@ -113,7 +113,7 @@ class ProviderController(
 	 * @param size The size of each page, default is 10
 	 */
 	@GetMapping(URIs.PROVIDERS)
-	fun getProvidersAndData(
+	fun getProvidersWithData(
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) beginDate: LocalDateTime,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endDate: Optional<LocalDateTime>,
 		@RequestParam(defaultValue = "0") page: Int,
@@ -135,20 +135,22 @@ class ProviderController(
 	 * @param url The URL of the provider to get
 	 */
 	@GetMapping(URIs.PROVIDER)
-	fun getProviderAndData(
-		@RequestParam url: String,
+	fun getProviderWithData(
+		@RequestBody url: String,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) beginDate: LocalDateTime,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endDate: Optional<LocalDateTime>,
 		@RequestParam(defaultValue = "0") page: Int,
 		@RequestParam(defaultValue = "10") size: Int
 	): ResponseEntity<*> {
+		//val providerURL = URL(url)
+
 		val providerURL = URL(url)
-		return when (val result = providerService.getProvider(providerURL, beginDate, endDate.orElse(LocalDateTime.now()), page, size)) {
+		return when (val result = providerService.getProvider(url, beginDate, endDate.orElse(LocalDateTime.now()), page, size)) {
 			is Success -> {
 				logger.info("Provider fetched successfully")
 				val provider = result.value.first
 				val pagedData = result.value.second
-				val providerWithData = ProviderWithData(provider, pagedData.items)
+				val providerWithData = ProviderWithData(provider, pagedData.items) //TODO: Probably not correct because it's domain and should be in service layer
 				ResponseEntity
 					.ok()
 					.addPaginationHeaders(pagedData.totalItems, pagedData.totalPages, pagedData.currentPage, pagedData.items.size)

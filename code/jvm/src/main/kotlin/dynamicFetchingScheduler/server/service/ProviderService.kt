@@ -117,7 +117,7 @@ class ProviderService(
 			val providerData = providers.map { provider ->
 				//TODO: Find a better way to limit amount of data fetched
 				val providerDataPage = 0
-				val providerDataSize = 2
+				val providerDataSize = 10
 				val dataList = it.providerRepository.findProviderDataWithinDateRange(provider.id, beginDate, endDate, providerDataPage, providerDataSize)
 				ProviderWithData(provider, dataList)
 			}
