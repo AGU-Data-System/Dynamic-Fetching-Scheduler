@@ -144,10 +144,8 @@ class ProviderController(
 		@RequestParam(defaultValue = "0") page: Int,
 		@RequestParam(defaultValue = "10") size: Int
 	): ResponseEntity<*> {
-		//val providerURL = URL(url)
-
 		val providerURL = URL(url)
-		return when (val result = providerService.getProvider(url, beginDate, endDate.orElse(LocalDateTime.now()), page, size)) {
+		return when (val result = providerService.getProvider(providerURL, beginDate, endDate.orElse(LocalDateTime.now()), page, size)) {
 			is Success -> {
 				logger.info("Provider fetched successfully")
 				val provider = result.value.first
