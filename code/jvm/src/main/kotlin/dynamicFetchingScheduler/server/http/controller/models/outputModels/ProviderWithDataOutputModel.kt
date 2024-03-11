@@ -1,4 +1,4 @@
-package dynamicFetchingScheduler.server.http.controller.models
+package dynamicFetchingScheduler.server.http.controller.models.outputModels
 
 import dynamicFetchingScheduler.server.domain.ProviderWithData
 

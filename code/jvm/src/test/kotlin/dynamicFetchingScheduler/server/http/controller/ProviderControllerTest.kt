@@ -1,6 +1,6 @@
 package dynamicFetchingScheduler.server.http.controller
 
-import dynamicFetchingScheduler.server.http.controller.models.ProviderInputModel
+import dynamicFetchingScheduler.server.http.controller.models.inputModels.ProviderInputModel
 import java.time.Duration
 import kotlin.test.Test
 import org.springframework.boot.test.context.SpringBootTest

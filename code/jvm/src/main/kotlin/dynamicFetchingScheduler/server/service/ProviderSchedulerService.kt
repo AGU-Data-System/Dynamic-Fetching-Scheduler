@@ -52,7 +52,7 @@ class ProviderSchedulerService(
 	fun scheduleProviderTask(provider: Provider) {
 		val delay = calculateInitialDelay(provider.lastFetch, provider.frequency)
 		val future: ScheduledFuture<*> = scheduler.scheduleAtFixedRate({
-			fetchDataService.fetchAndSave(provider.url)
+			fetchDataService.fetchAndSave(provider.id, provider.url)
 		}, delay, provider.frequency.toMillis(), TimeUnit.MILLISECONDS)
 		scheduledTasks[provider.id] = future
 	}
@@ -60,7 +60,7 @@ class ProviderSchedulerService(
 	/**
 	 * Stop a provider from being fetched periodically if it changes to inactive.
 	 *
-	 * @param providerId The URL of the provider to stop fetching
+	 * @param providerId The id of the provider to stop fetching
 	 */
 	fun stopProviderTask(providerId: Int) {
 		val future = scheduledTasks[providerId]

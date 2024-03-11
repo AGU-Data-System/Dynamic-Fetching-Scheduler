@@ -3,7 +3,6 @@ package dynamicFetchingScheduler.server.repository.provider
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.domain.RawData
-import java.net.URL
 import java.time.LocalDateTime
 
 /**
@@ -21,10 +20,10 @@ interface ProviderRepository {
 	/**
 	 * Updates the provider's lastFetch field
 	 *
-	 * @param providerURL The URL of the provider to update
+	 * @param id The id of the provider to update
 	 * @param lastFetched The time to update the field to
 	 */
-	fun updateLastFetch(providerURL: URL, lastFetched: LocalDateTime)
+	fun updateLastFetch(id: Int, lastFetched: LocalDateTime)
 
 	/**
 	 * Add a provider to the database.
@@ -36,24 +35,25 @@ interface ProviderRepository {
 	/**
 	 * Update a provider in the database.
 	 *
+	 * @param id The ID of the provider to update
 	 * @param provider The provider to update
 	 */
-	fun updateProvider(provider: ProviderInput): Provider
+	fun updateProvider(id: Int, provider: ProviderInput): Provider
 
 	/**
 	 * Delete a provider from the database.
 	 *
-	 * @param url The URL of the provider to delete
+	 * @param id The URL of the provider to delete
 	 */
-	fun deleteProvider(url: URL): Int
+	fun deleteProvider(id: Int)
 
 	/**
 	 * Get a provider from the database.
 	 *
-	 * @param url The URL of the provider to get
+	 * @param id The URL of the provider to get
 	 * @return The provider
 	 */
-	fun findByUrl(url: URL): Provider?
+	fun find(id: Int): Provider?
 
 	/**
 	 * Count the total number of providers in the database.
@@ -74,14 +74,11 @@ interface ProviderRepository {
 	fun countTotalProviderDataWithinDateRange(providerId: Int, beginDate: LocalDateTime, endDate: LocalDateTime): Int
 
 	/**
-	 * Get all providers from the database, paginated.
+	 * Get all providers from the database.
 	 *
-	 * @param page The page number to get
-	 * @param size The size of each page
-	 *
-	 * @return The list of providers, and the pagination information
+	 * @return The list of providers
 	 */
-	fun findPaginatedProviders(page: Int, size: Int): List<Provider>
+	fun allProviders(): List<Provider>
 
 	/**
 	 * Get the data of a provider from the database, paginated within a date range.

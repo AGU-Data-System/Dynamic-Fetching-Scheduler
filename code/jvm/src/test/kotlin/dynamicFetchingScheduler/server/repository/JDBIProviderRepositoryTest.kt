@@ -60,7 +60,7 @@ class JDBIProviderRepositoryTest {
 		repo.addProvider(sut)
 		val curTime = LocalDateTime.now()
 		repo.updateLastFetch(sut.url, curTime)
-		val result = repo.findByUrl(sut.url)
+		val result = repo.find(sut.url)
 		// assert
 		assertNotNull(result)
 		assertNotNull(result.lastFetch)
@@ -75,7 +75,7 @@ class JDBIProviderRepositoryTest {
 		val repo = JDBIProviderRepository(handle)
 		// act
 		repo.addProvider(sut)
-		val result = repo.findByUrl(sut.url)
+		val result = repo.find(sut.url)
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)
@@ -91,7 +91,7 @@ class JDBIProviderRepositoryTest {
 		val repo = JDBIProviderRepository(handle)
 		// act
 		repo.addProvider(sut)
-		val result = repo.findByUrl(sut.url)
+		val result = repo.find(sut.url)
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)
@@ -108,7 +108,7 @@ class JDBIProviderRepositoryTest {
 		repo.addProvider(sut)
 		// act
 		repo.updateProvider(sut.copy(isActive = false))
-		val result = repo.findByUrl(sut.url)
+		val result = repo.find(sut.url)
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)
@@ -135,11 +135,11 @@ class JDBIProviderRepositoryTest {
 		val repo = JDBIProviderRepository(handle)
 		val sut = dummyProvider1
 		repo.addProvider(sut)
-		val findAfterInsert = repo.findByUrl(sut.url)
+		val findAfterInsert = repo.find(sut.url)
 		assertNotNull(findAfterInsert)
 		// act
 		repo.deleteProvider(sut.url)
-		val result = repo.findByUrl(sut.url)
+		val result = repo.find(sut.url)
 		// assert
 		assertNull(result)
 	}
@@ -162,7 +162,7 @@ class JDBIProviderRepositoryTest {
 		// act
 		val repo = JDBIProviderRepository(handle)
 		repo.addProvider(sut)
-		val result = repo.findByUrl(sut.url)
+		val result = repo.find(sut.url)
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)

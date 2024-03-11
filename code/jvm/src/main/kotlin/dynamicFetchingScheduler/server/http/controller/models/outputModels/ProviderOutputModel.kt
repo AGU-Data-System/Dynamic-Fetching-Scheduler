@@ -1,4 +1,4 @@
-package dynamicFetchingScheduler.server.http.controller.models
+package dynamicFetchingScheduler.server.http.controller.models.outputModels
 
 import dynamicFetchingScheduler.server.domain.Provider
 
@@ -12,7 +12,7 @@ import dynamicFetchingScheduler.server.domain.Provider
  * @property isActive Whether the provider is active
  * @property lastFetch The last time the provider was fetched
  */
-data class GetProviderOutputModel(
+data class ProviderOutputModel(
 	val id: Int,
 	val name: String,
 	val url: String,

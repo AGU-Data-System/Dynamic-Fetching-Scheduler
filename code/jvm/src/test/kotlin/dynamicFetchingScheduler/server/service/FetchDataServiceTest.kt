@@ -23,7 +23,7 @@ class FetchDataServiceTest {
 		val sut = dummyProviderInput
 		val provider = tm.run {
 			it.providerRepository.addProvider(sut)
-			return@run it.providerRepository.findByUrl(sut.url)
+			return@run it.providerRepository.find(sut.url)
 		}
 		assertNotNull(provider)
 		// act
@@ -44,7 +44,7 @@ class FetchDataServiceTest {
 		val sut = dummyProviderInput.copy(url = URL("https://dummyproject.org/"))
 		val provider = tm.run {
 			it.providerRepository.addProvider(sut)
-			return@run it.providerRepository.findByUrl(sut.url)
+			return@run it.providerRepository.find(sut.url)
 		}
 		assertNotNull(provider)
 		// act

@@ -8,9 +8,7 @@ create table if not exists provider
     url          varchar              not null,
     frequency    interval             not null,
     is_active    boolean default true not null,
-    last_fetched timestamp with time zone,
-
-    unique (url)
+    last_fetched timestamp with time zone
 );
 
 -- Table to store the fetched data.

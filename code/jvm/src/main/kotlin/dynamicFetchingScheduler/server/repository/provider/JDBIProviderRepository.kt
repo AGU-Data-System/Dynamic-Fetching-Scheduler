@@ -3,11 +3,10 @@ package dynamicFetchingScheduler.server.repository.provider
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.domain.RawData
+import java.time.LocalDateTime
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import org.slf4j.LoggerFactory
-import java.net.URL
-import java.time.LocalDateTime
 
 /**
  * A JDBI implementation of the [ProviderRepository].
@@ -26,7 +25,7 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 		logger.info("Fetching active providers")
 
 		val providers =
-			handle.createQuery("SELECT id, name, id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched FROM provider WHERE is_active = true")
+			handle.createQuery("SELECT id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched FROM provider WHERE is_active = true")
 				.mapTo<Provider>()
 				.list()
 
@@ -38,19 +37,19 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	/**
 	 * Updates the provider's lastFetch field
 	 *
-	 * @param providerURL The URL of the provider to update
+	 * @param id The id of the provider to update
 	 * @param lastFetched The time to update the field to
 	 */
-	override fun updateLastFetch(providerURL: URL, lastFetched: LocalDateTime) {
+	override fun updateLastFetch(id: Int, lastFetched: LocalDateTime) {
 
-		logger.info("Updating last fetch for provider: {}", providerURL)
+		logger.info("Updating last fetch for provider: {}", id)
 
-		handle.createUpdate("UPDATE provider SET last_fetched = :lastFetched WHERE url = :url")
-			.bind("url", providerURL.toString())
+		handle.createUpdate("UPDATE provider SET last_fetched = :lastFetched WHERE id = :id")
+			.bind("id", id)
 			.bind("lastFetched", lastFetched)
 			.execute()
 
-		logger.info("Updated last fetch for provider: {}", providerURL)
+		logger.info("Updated last fetch for provider: {}", id)
 	}
 
 	/**
@@ -82,40 +81,41 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	/**
 	 * Update a provider in the database.
 	 *
+	 * @param id The ID of the provider to update.
 	 * @param provider The provider to update.
 	 */
-	override fun updateProvider(provider: ProviderInput): Provider {
+	override fun updateProvider(id: Int, provider: ProviderInput): Provider {
 
 		val oldProvider = handle.createQuery(
 			"""
-            SELECT id, name, id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched 
+            SELECT id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched 
             FROM provider 
-            WHERE url = :url
+            WHERE id = :id
             """.trimIndent()
 		)
-			.bind("url", provider.url.toString())
+			.bind("id", id)
 			.mapTo<Provider>()
 			.one()
-
+		// TODO: Alternative is updating directly since we have the id but there we lose a logging statement
 		logger.info("Updating provider: {}", oldProvider)
 
-		val providerId = handle.createUpdate(
+		handle.createUpdate(
 			"""
 			UPDATE provider SET name = :name, 
 			frequency = :frequency, 
-			is_active = :isActive
-			WHERE url = :url
+			is_active = :isActive,
+			url = :url
+			WHERE id = :id
 			""".trimIndent()
 		)
+			.bind("id", id)
 			.bind("name", provider.name)
 			.bind("url", provider.url.toString())
 			.bind("frequency", provider.frequency)
 			.bind("isActive", provider.isActive)
-			.executeAndReturnGeneratedKeys()
-			.mapTo<Int>()
-			.one()
+			.execute()
 
-		val newProvider = Provider(providerId, provider, oldProvider.lastFetch)
+		val newProvider = Provider(id, provider, oldProvider.lastFetch)
 
 		logger.info("Updated provider: {}", newProvider)
 
@@ -125,40 +125,37 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	/**
 	 * Delete a provider from the database.
 	 *
-	 * @param url The url of the provider to delete.
+	 * @param id The url of the provider to delete.
 	 */
-	override fun deleteProvider(url: URL): Int {
+	override fun deleteProvider(id: Int) {
 
-		logger.info("Deleting provider: {}", url)
+		logger.info("Deleting provider with id: {}", id)
 
-		val providerId = handle.createUpdate("DELETE FROM provider WHERE url = :url")
-			.bind("url", url.toString())
-			.executeAndReturnGeneratedKeys("id")
-			.mapTo<Int>()
-			.one()
+		handle.createUpdate("DELETE FROM provider WHERE id = :id")
+			.bind("id", id)
+			.execute()
 
 		logger.info("Provider deleted")
-		return providerId
 	}
 
 	/**
 	 * Get a provider from the database.
 	 *
-	 * @param url The URL of the provider to get
+	 * @param id The URL of the provider to get
 	 * @return The provider
 	 */
-	override fun findByUrl(url: URL): Provider? {
+	override fun find(id: Int): Provider? {
 
-		logger.info("Fetching provider by URL: {}", url)
+		logger.info("Fetching provider with id: {}", id)
 
 		val provider = handle.createQuery(
 			"""
-            SELECT id, name, id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched 
+            SELECT id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched 
             FROM provider 
-            WHERE url = :url
+            WHERE id = :id
             """.trimIndent()
 		)
-			.bind("url", url.toString())
+			.bind("id", id)
 			.mapTo<Provider>()
 			.firstOrNull()
 
@@ -170,24 +167,22 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	/**
 	 * Get all providers from the database, paginated.
 	 *
-	 * @param page The page number to get
-	 * @param size The size of each page
+	 * @return The list of providers
 	 */
-	override fun findPaginatedProviders(page: Int, size: Int): List<Provider> {
-		val offset = page * size
+	override fun allProviders(): List<Provider> {
+		logger.info("Fetching all providers")
 
-		val providersQuery = """
+		val providers = handle.createQuery("""
 			SELECT id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched
 			FROM provider
 			ORDER BY id
-			LIMIT :size OFFSET :offset
-    	""".trimIndent()
-
-		return handle.createQuery(providersQuery)
-			.bind("size", size)
-			.bind("offset", offset)
+    	""".trimIndent())
 			.mapTo<Provider>()
 			.list()
+
+		logger.info("Fetched all providers, number of providers: {}", providers.size)
+
+		return providers
 	}
 
 	/**
@@ -227,11 +222,16 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 * @return The total number of providers
 	 */
 	override fun countTotalProviders(): Int {
-		val countQuery = "SELECT COUNT(*) FROM provider"
 
-		return handle.createQuery(countQuery)
+		logger.info("Counting total providers")
+
+		val nrOfProviders = handle.createQuery("SELECT COUNT(*) FROM provider")
 			.mapTo<Int>()
 			.one()
+
+		logger.info("Total providers: {}", nrOfProviders)
+
+		return nrOfProviders
 	}
 
 	/**

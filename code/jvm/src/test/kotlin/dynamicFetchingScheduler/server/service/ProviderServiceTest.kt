@@ -164,7 +164,7 @@ class ProviderServiceTest {
 
 		// act
 		service.addProvider(sut)
-		val result = service.getProvider(sut.url)
+		val result = service.getProviderWithData(sut.url)
 		// assert
 		assert(result is Success)
 		assertEquals(result.successOrNull()?.name, sut.name)

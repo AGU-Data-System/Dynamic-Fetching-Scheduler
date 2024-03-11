@@ -22,19 +22,20 @@ class FetchDataService(
 	/**
 	 * Fetches the data from the provider and saves it to the database.
 	 *
+	 * @param providerId The id of the provider to fetch from
 	 * @param providerURL The URL of the provider to fetch from
 	 */
-	fun fetchAndSave(providerURL: URL) {
+	fun fetchAndSave(providerId: Int, providerURL: URL) {
 		logger.info("Fetching data from provider: {}", providerURL)
 		val response = fetch(providerURL.toString())
-		logger.info("Fetched data from provider with status code: {}", response.first)
-		if (response.first != HttpStatus.OK.value()) return // TODO: ERROR With status code
+		logger.info("Fetched data from provider with status code: {}", response.statusCode)
+		if (response.statusCode != HttpStatus.OK.value()) return
 		transactionManager.run {
-			val provider = it.providerRepository.findByUrl(providerURL) ?: return@run
+			val provider = it.providerRepository.find(providerId) ?: return@run
 			val curTime = LocalDateTime.now()
-			it.rawDataRepository.saveRawData(RawData(provider.id, curTime, response.second))
-			it.providerRepository.updateLastFetch(providerURL, curTime)
-			logger.info("Saved data from provider on Database with url: {} and name: {}", providerURL, provider.name)
+			it.rawDataRepository.saveRawData(RawData(provider.id, curTime, response.body))
+			it.providerRepository.updateLastFetch(providerId, curTime)
+			logger.info("Saved data from provider on Database with url: {} and id: {}", providerURL, providerId)
 		}
 	}
 
@@ -52,16 +53,23 @@ class FetchDataService(
 			.build()
 		try {
 			val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-			return response.statusCode() to response.body()
+			return Response(response.statusCode(), response.body())
 		} catch (e: Exception) {
 			logger.error("Error fetching data from provider with url: {} and exception:", url, e)
-			return HttpStatus.INTERNAL_SERVER_ERROR.value() to e.message.toString()
+			return Response(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.message.toString())
 		}
 	}
+
+	/**
+	 * Represents a response from a request.
+	 *
+	 * @property statusCode The status code of the response
+	 * @property body The body of the response
+	 */
+	private data class Response(val statusCode: Int, val body: String)
 
 	companion object {
 		private val logger = LoggerFactory.getLogger(FetchDataService::class.java)
 	}
 }
 
-typealias Response = Pair<Int, String>

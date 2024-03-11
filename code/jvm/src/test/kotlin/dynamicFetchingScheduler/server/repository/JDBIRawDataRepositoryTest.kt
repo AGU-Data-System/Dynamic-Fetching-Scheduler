@@ -38,7 +38,7 @@ class JDBIRawDataRepositoryTest {
 		providerRepo.addProvider(dummyProvider)
 
 		// act
-		val providerSut = providerRepo.findByUrl(dummyProvider.url)
+		val providerSut = providerRepo.find(dummyProvider.url)
 		assertNotNull(providerSut)
 		val rawDataSut = RawData(providerSut!!.id, LocalDateTime.now(), jsonData)
 		rawDataRepo.saveRawData(rawDataSut)
@@ -62,7 +62,7 @@ class JDBIRawDataRepositoryTest {
 		providerRepo.addProvider(dummyProvider)
 
 		// act
-		val providerSut = providerRepo.findByUrl(dummyProvider.url)
+		val providerSut = providerRepo.find(dummyProvider.url)
 		assertNotNull(providerSut)
 		val rawDataSut = RawData(providerSut!!.id, LocalDateTime.now(), stringData)
 
