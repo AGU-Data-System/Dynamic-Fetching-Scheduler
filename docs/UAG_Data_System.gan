@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="UAG_Data_System" company="" webLink="http://" view-date="2024-01-08" view-index="0" gantt-divider-location="393" resource-divider-location="300" version="3.3.3305" locale="en_GB">
+<?xml version="1.0" encoding="UTF-8"?><project name="UAG_Data_System" company="" webLink="http://" view-date="2024-02-12" view-index="0" gantt-divider-location="412" resource-divider-location="300" version="3.3.3305" locale="en_GB">
     <description/>
     <view zooming-state="default:7" id="gantt-chart">
-        <field id="tpd3" name="Name" width="234" order="0"/>
-        <field id="tpd4" name="Begin date" width="76" order="1"/>
-        <field id="tpd5" name="End date" width="82" order="2"/>
+        <field id="tpd3" name="Name" width="217" order="0"/>
+        <field id="tpd4" name="Begin date" width="95" order="1"/>
+        <field id="tpd5" name="End date" width="84" order="2"/>
         <field id="tpd15" name="Notes" width="20" order="3"/>
         <option id="filter.completedTasks" value="false"/>
         <option id="filter.dueTodayTasks" value="false"/>
@@ -44,42 +44,38 @@
             <task id="4" uid="e49e91e492294489952b5cf8ca7ff477" name="Beta Version" color="#8cb6ce" meeting="true" start="2024-06-03" duration="0" complete="0" expand="true"/>
             <task id="6" uid="1f74af5847c041b1aa666b60c3fca639" name="Final Version" color="#8cb6ce" meeting="true" start="2024-07-13" duration="0" complete="0" expand="true"/>
         </task>
-        <task id="8" uid="4fc43b9fce184939ba4d001d6040f718" name="Documentation" meeting="false" start="2024-02-22" duration="136" complete="0" expand="false">
-            <task id="9" uid="460727cf5c464952aed0411e49b0be4d" name="Project Proposal Elaboration" meeting="false" start="2024-02-22" duration="19" complete="0" expand="true"/>
-            <task id="10" uid="b05e8c1277fb413db6c33fd35bbed9cd" name="Progress Report Elaboration" meeting="false" start="2024-03-20" duration="27" complete="0" expand="true"/>
-            <task id="11" uid="92ebbbf99f1d47759589a47661ae6b79" name="Beta Version Preparation" meeting="false" start="2024-04-24" duration="34" complete="0" expand="true"/>
-            <task id="12" uid="0b7241a5fd94420ca72dc67d8362de9b" name="Final Version" meeting="false" start="2024-06-05" duration="32" complete="0" expand="true"/>
+        <task id="8" uid="4fc43b9fce184939ba4d001d6040f718" name="Documentation" meeting="false" start="2024-02-22" duration="142" complete="0" expand="true">
+            <task id="9" uid="460727cf5c464952aed0411e49b0be4d" name="Project Proposal Elaboration" meeting="false" start="2024-02-22" duration="23" complete="0" expand="true"/>
+            <task id="10" uid="b05e8c1277fb413db6c33fd35bbed9cd" name="Progress Report Elaboration" meeting="false" start="2024-03-20" duration="31" complete="0" expand="true"/>
+            <task id="11" uid="92ebbbf99f1d47759589a47661ae6b79" name="Beta Version Preparation" meeting="false" start="2024-04-24" duration="38" complete="0" expand="true"/>
+            <task id="12" uid="0b7241a5fd94420ca72dc67d8362de9b" name="Final Version" meeting="false" start="2024-06-05" duration="38" complete="0" expand="true"/>
         </task>
-        <task id="7" uid="0abef5053c9b47868666c274dab51fa5" name="Development" meeting="false" start="2024-02-22" duration="138" complete="0" expand="true">
-            <task id="19" uid="d92e106e574b4cb4ae680a00399b02af" name="Frontend" meeting="false" start="2024-03-08" duration="70" complete="0" expand="true">
+        <task id="7" uid="0abef5053c9b47868666c274dab51fa5" name="Development" meeting="false" start="2024-02-22" duration="142" complete="0" expand="true">
+            <task id="19" uid="d92e106e574b4cb4ae680a00399b02af" name="Frontend" meeting="false" start="2024-03-08" duration="127" complete="0" expand="true">
                 <task id="24" uid="3aad0a7dee7346bdb4b958776168512d" name="Technical analysis" meeting="false" start="2024-03-08" duration="42" complete="0" expand="true"/>
-                <task id="25" uid="2555e8c2538d4512b77a5a275bd8dc13" name="Development" meeting="false" start="2024-04-19" duration="15" complete="0" expand="true"/>
-                <task id="26" uid="42185f055eb443f38b856d3b87e36544" name="Testing" meeting="false" start="2024-05-06" duration="6" complete="0" expand="true"/>
-                <task id="27" uid="2c9785756e5e4935a2a5086f53d8a34c" name="Documentation" meeting="false" start="2024-05-13" duration="4" complete="0" expand="true"/>
+                <task id="25" uid="2555e8c2538d4512b77a5a275bd8dc13" name="Development" meeting="false" start="2024-04-19" duration="64" complete="0" expand="true"/>
+                <task id="26" uid="42185f055eb443f38b856d3b87e36544" name="Testing" meeting="false" start="2024-06-10" duration="26" complete="0" expand="true"/>
+                <task id="27" uid="2c9785756e5e4935a2a5086f53d8a34c" name="Documentation" meeting="false" start="2024-07-08" duration="5" complete="0" expand="true"/>
             </task>
-            <task id="0" uid="6d39a1ba18e24a3c84e711375fa9f22a" name="Fetcher_module" meeting="false" start="2024-02-22" duration="15" complete="0" expand="true">
+            <task id="0" uid="6d39a1ba18e24a3c84e711375fa9f22a" name="Fetcher_module" meeting="false" start="2024-02-22" duration="23" complete="0" expand="true">
                 <task id="14" uid="7fa421981e714b969def2ccce21d6aef" name="Technical analysis" meeting="false" start="2024-02-22" duration="8" complete="0" expand="true"/>
-                <task id="15" uid="caf75b4634054f3a9bc8048665415c34" name="Development" meeting="false" start="2024-02-29" duration="5" complete="0" expand="true"/>
-                <task id="16" uid="1b1d2096e02e4bb2a81a71e40a42397b" name="Testing" meeting="false" start="2024-03-05" duration="2" complete="0" expand="true"/>
-                <task id="17" uid="72c78ffcfb6544e5b938acda3274c5f2" name="Documentation" meeting="false" start="2024-03-07" duration="1" complete="0" expand="true"/>
+                <task id="15" uid="caf75b4634054f3a9bc8048665415c34" name="Development" meeting="false" start="2024-02-29" duration="12" complete="0" expand="true"/>
+                <task id="16" uid="1b1d2096e02e4bb2a81a71e40a42397b" name="Testing" meeting="false" start="2024-03-05" duration="10" complete="0" expand="true"/>
+                <task id="17" uid="72c78ffcfb6544e5b938acda3274c5f2" name="Documentation" meeting="false" start="2024-03-13" duration="3" complete="0" expand="true"/>
             </task>
-            <task id="18" uid="943f9f546236479ca4ae0068f8c78b94" name="Web API" meeting="false" start="2024-03-08" duration="36" complete="0" expand="true">
-                <task id="20" uid="22af18702dda42f685267e662f6fd8d9" name="Technical analysis" meeting="false" start="2024-03-08" duration="8" complete="0" expand="true"/>
-                <task id="21" uid="067541a3b8cc443e84364c36d646b74e" name="Development" meeting="false" start="2024-03-16" duration="16" complete="0" expand="true"/>
-                <task id="22" uid="2928b2f44a2c4fa0a9577edc15cc10c2" name="Testing" meeting="false" start="2024-03-27" duration="11" complete="0" expand="true"/>
-                <task id="23" uid="9ccef51eed3d48d8a2236d66c8872450" name="Decomentation" meeting="false" start="2024-03-27" duration="14" complete="0" expand="true"/>
-                <task id="28" uid="d63af2aa16d84248b36b95233c69a78c" name="Corrections" meeting="false" start="2024-03-27" duration="17" complete="0" expand="true"/>
+            <task id="18" uid="943f9f546236479ca4ae0068f8c78b94" name="Web API" meeting="false" start="2024-03-08" duration="127" complete="0" expand="true">
+                <task id="20" uid="22af18702dda42f685267e662f6fd8d9" name="Technical analysis" meeting="false" start="2024-03-08" duration="22" complete="0" expand="true"/>
+                <task id="21" uid="067541a3b8cc443e84364c36d646b74e" name="Development" meeting="false" start="2024-03-26" duration="53" complete="0" expand="true"/>
+                <task id="22" uid="2928b2f44a2c4fa0a9577edc15cc10c2" name="Testing" meeting="false" start="2024-04-01" duration="61" complete="0" expand="true"/>
+                <task id="23" uid="9ccef51eed3d48d8a2236d66c8872450" name="Documentation" meeting="false" start="2024-05-24" duration="15" complete="0" expand="true"/>
+                <task id="28" uid="d63af2aa16d84248b36b95233c69a78c" name="Corrections" meeting="false" start="2024-06-03" duration="40" complete="0" expand="true"/>
             </task>
-            <task id="29" uid="419fd91954124de1b8c0842276859833" name="Database" meeting="false" start="2024-02-29" duration="23" complete="0" expand="true">
-                <task id="30" uid="b9a4806433cc4b2897f24568a69a469e" name="Technical analysis" meeting="false" start="2024-02-29" duration="11" complete="0" expand="true"/>
-                <task id="31" uid="3f86e556ac4c4ea6a53be2a9e286f93f" name="Development" meeting="false" start="2024-03-08" duration="8" complete="0" expand="true"/>
-                <task id="32" uid="cdab7bad485540fbb7a39deee8384e96" name="Testing" meeting="false" start="2024-03-16" duration="4" complete="0" expand="true"/>
-                <task id="33" uid="7ce823320d3f452b9132e885eb007190" name="Documentation" meeting="false" start="2024-03-20" duration="3" complete="0" expand="true"/>
+            <task id="29" uid="419fd91954124de1b8c0842276859833" name="Database" meeting="false" start="2024-02-29" duration="65" complete="0" expand="true">
+                <task id="30" uid="b9a4806433cc4b2897f24568a69a469e" name="Technical analysis" meeting="false" start="2024-02-29" duration="16" complete="0" expand="true"/>
+                <task id="31" uid="3f86e556ac4c4ea6a53be2a9e286f93f" name="Development" meeting="false" start="2024-03-08" duration="48" complete="0" expand="true"/>
+                <task id="32" uid="cdab7bad485540fbb7a39deee8384e96" name="Testing" meeting="false" start="2024-04-22" duration="8" complete="0" expand="true"/>
+                <task id="33" uid="7ce823320d3f452b9132e885eb007190" name="Documentation" meeting="false" start="2024-04-26" duration="8" complete="0" expand="true"/>
             </task>
-            <task id="34" uid="e4e9ecad7a524fc3a3151f67f337ecd1" name="Optionals &amp; Improvements" meeting="false" start="2024-06-05" duration="34" complete="0" expand="true">
-                <task id="35" uid="83cb79c4faec48c586d4acbebf0e8132" name="Balanced Routing" meeting="false" start="2024-06-05" duration="34" complete="0" expand="true"/>
-            </task>
-            <task id="36" uid="a1d9510f0e304c79beacaf220514624f" name="Bug Corrections" meeting="false" start="2024-03-08" duration="123" complete="0" expand="true"/>
         </task>
     </tasks>
     <resources/>
