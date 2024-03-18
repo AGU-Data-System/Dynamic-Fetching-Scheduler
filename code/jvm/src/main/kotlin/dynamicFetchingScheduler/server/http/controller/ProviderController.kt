@@ -96,7 +96,7 @@ class ProviderController(
 		return when (val result = providerService.deleteProvider(id)) {
 			is Success -> {
 				logger.info("Provider deleted successfully")
-				ResponseEntity.noContent().build()
+				ResponseEntity.ok().body("Provider with id: $id deleted successfully")
 			}
 
 			is Failure -> {
@@ -110,7 +110,7 @@ class ProviderController(
 	 * Gets all providers.
 	 */
 	@GetMapping(URIs.PROVIDERS)
-	fun getProvidersWithData(): ResponseEntity<*> {
+	fun allProviders(): ResponseEntity<*> {
 		logger.info("Fetching all providers")
 
 		val result = providerService.getProviders()
@@ -124,7 +124,7 @@ class ProviderController(
 	 * @param id The id of the provider to get
 	 */
 	@GetMapping(URIs.UPDATE_PROVIDER)
-	fun getProviderWithData(
+	fun providerWithData(
 		@PathVariable id: Int,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) beginDate: LocalDateTime,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endDate: Optional<LocalDateTime>,
