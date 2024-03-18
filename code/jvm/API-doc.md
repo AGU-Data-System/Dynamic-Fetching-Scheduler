@@ -25,17 +25,16 @@
 ## Introduction
 
 This document outlines the API endpoints and how to make requests to say API.
-The Fetcher API is a simple REST API that allows users to add and remove providers from the database and to make
+The Fetcher API is a simple REST API that allows users to add and remove providers from the system and to make
 requests to the providers to fetch data.
-Everytime a provider is added to the database, the API will make a request to the provider's endpoint to fetch the data
+Everytime a provider is added to the system, the API will make a request to the provider's endpoint to fetch the data
 is the provider active.
-A Provider is considered active if the request to the provider's endpoint has a field `active` set to `true`.
+A Provider is considered active if the request to the provider's endpoint has a field `isActive` set to `true`.
 
 ## Pagination
 
 The API uses pagination to limit the number of results returned in a single request.
-When pagination is used, each page has a maximum of XX results.
-
+When pagination is used, each page has a maximum of 10 results.
 
 ## Date and Time format
 
@@ -75,8 +74,7 @@ Updates a provider if it exists.
 - **URL:** `/api/provider/{id}`
 - **Method:** `POST`
 - **Path Variables:**
-    - **Required:**
-        - `id` - The unique id of the provider to be updated.
+    - `id` - The unique id of the provider to be updated.
 - **Request Body:**
     - **Required:**
         - [Provider Input Model](#provider-input-model)
@@ -100,12 +98,11 @@ Deletes a provider.
 - **URL:** `/api/provider/{id}`
 - **Method:** `DELETE`
 - **Path Variables:**
-    - **Required:**
-        - `id` - The unique id of the provider to be deleted.
+  - `id` - The unique id of the provider to be deleted.
 - **Success Response:**
     - **Content:** 
         - `application/json`    
-            - [Simple message](#simple-message) // TODO: Change or doc this
+            - [Simple message](#simple-message)
 - **Error Response:**
     - **Content:** 
         - `application/json`
@@ -156,12 +153,12 @@ Fetches a provider and its data for a given period.
 - **Error Response:**
     - **Content:** 
          - `application/json`
-                - [Bad Request](#bad-request)
+            - [Bad Request](#bad-request)
 - **Sample Call:**
     ```shell
-      curl -X GET "http://localhost:8080/api/provider?beginDate=2021-01-01&endDate=2021-01-31&page=1&size=10"
+      curl -X GET "http://localhost:8080/api/provider?beginDate=2021-01-01"
     ```
-  
+
 ## Input Models
 
 ### Provider Input Model
