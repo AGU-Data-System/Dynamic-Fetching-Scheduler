@@ -63,7 +63,9 @@ object SchemaManagementExtension : BeforeAllCallback, AfterAllCallback {
 			handle.rollback()
 		}
 
-
+	/**
+	 * Creates the schema and tables before all tests.
+	 */
 	override fun beforeAll(context: ExtensionContext) {
 		jdbiTest().useHandle<Exception> { handle ->
 			handle.execute("CREATE SCHEMA IF NOT EXISTS $SCHEMA_NAME")
@@ -73,12 +75,18 @@ object SchemaManagementExtension : BeforeAllCallback, AfterAllCallback {
 		}
 	}
 
+	/**
+	 * Drops the schema after all tests.
+	 */
 	override fun afterAll(context: ExtensionContext) {
 		jdbiTest().useHandle<Exception> { handle ->
 			handle.execute("DROP SCHEMA IF EXISTS $SCHEMA_NAME CASCADE")
 		}
 	}
 
+	/**
+	 * Executes the SQL statements from the file.
+	 */
 	private fun executeSqlFromFile(handle: Handle) {
 		val path = Paths.get(CRETE_TABLES_SQL_PATH)
 		val sql = Files.readString(path)
