@@ -1,7 +1,10 @@
 package dynamicFetchingScheduler.server.service
 
+import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(SchemaManagementExtension::class)
 class ProviderSchedulerServiceTest {
 
 	@Test

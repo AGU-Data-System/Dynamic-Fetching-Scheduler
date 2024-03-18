@@ -4,7 +4,8 @@ import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.domain.RawData
 import dynamicFetchingScheduler.server.repository.provider.JDBIProviderRepository
 import dynamicFetchingScheduler.server.repository.rawData.JDBIRawDataRepository
-import dynamicFetchingScheduler.server.testWithHandleAndRollback
+import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension
+import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension.testWithHandleAndRollback
 import java.net.URL
 import java.time.Duration
 import java.time.LocalDateTime
@@ -14,7 +15,9 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(SchemaManagementExtension::class)
 class JDBIRawDataRepositoryTest {
 
 	private val dummyProvider = ProviderInput(
@@ -45,7 +48,8 @@ class JDBIRawDataRepositoryTest {
 		val rawDataSut = RawData(providerSut!!.id, LocalDateTime.now(), jsonData)
 		rawDataRepo.saveRawData(rawDataSut)
 
-		val result = providerRepo.findProviderDataWithinDateRange(providerSut.id, beginTime, LocalDateTime.now(), 0, 1000)
+		val result =
+			providerRepo.findProviderDataWithinDateRange(providerSut.id, beginTime, LocalDateTime.now(), 0, 1000)
 
 		// assert
 		assertEquals(1, result.size)

@@ -1,13 +1,16 @@
 package dynamicFetchingScheduler.server.http.controller
 
 import dynamicFetchingScheduler.server.http.controller.models.inputModels.ProviderInputModel
+import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension
 import java.time.Duration
 import kotlin.test.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ExtendWith(SchemaManagementExtension::class)
 class ProviderControllerTest {
 
 	private val dummyProviderInput = ProviderInputModel(

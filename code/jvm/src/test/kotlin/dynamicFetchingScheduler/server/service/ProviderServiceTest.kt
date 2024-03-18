@@ -1,11 +1,12 @@
 package dynamicFetchingScheduler.server.service
 
 import dynamicFetchingScheduler.server.domain.ProviderInput
-import dynamicFetchingScheduler.server.failureOrNull
 import dynamicFetchingScheduler.server.service.errors.DeleteProviderError
 import dynamicFetchingScheduler.server.service.errors.UpdateProviderError
-import dynamicFetchingScheduler.server.successOrNull
-import dynamicFetchingScheduler.server.testWithTransactionManagerAndRollback
+import dynamicFetchingScheduler.server.testUtils.failureOrNull
+import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension
+import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension.testWithTransactionManagerAndRollback
+import dynamicFetchingScheduler.server.testUtils.successOrNull
 import dynamicFetchingScheduler.utils.Failure
 import dynamicFetchingScheduler.utils.Success
 import java.net.URL
@@ -13,7 +14,9 @@ import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(SchemaManagementExtension::class)
 class ProviderServiceTest {
 
 
@@ -91,7 +94,7 @@ class ProviderServiceTest {
 		val service = ProviderService(tm, schedulerService)
 
 		// act
-		val result = service.updateProvider(Int.MAX_VALUE, dummyProvider.copy(isActive = false ))
+		val result = service.updateProvider(Int.MAX_VALUE, dummyProvider.copy(isActive = false))
 
 		// assert
 		assert(result is Failure)
@@ -169,7 +172,8 @@ class ProviderServiceTest {
 		// act
 		val provider = service.addProvider(sut)
 		require(provider is Success)
-		val result = service.getProviderWithData(provider.value.provider.id, LocalDateTime.now(), LocalDateTime.now(), 0, 10)
+		val result =
+			service.getProviderWithData(provider.value.provider.id, LocalDateTime.now(), LocalDateTime.now(), 0, 10)
 		// assert
 		assert(result is Success)
 		assertEquals(result.successOrNull()?.provider?.name, sut.name)

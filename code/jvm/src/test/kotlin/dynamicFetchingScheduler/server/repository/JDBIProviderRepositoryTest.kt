@@ -2,7 +2,8 @@ package dynamicFetchingScheduler.server.repository
 
 import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.repository.provider.JDBIProviderRepository
-import dynamicFetchingScheduler.server.testWithHandleAndRollback
+import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension
+import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension.testWithHandleAndRollback
 import java.net.URL
 import java.time.Duration
 import java.time.LocalDateTime
@@ -14,7 +15,9 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(SchemaManagementExtension::class)
 class JDBIProviderRepositoryTest {
 
 	private val dummyProvider1 = ProviderInput(

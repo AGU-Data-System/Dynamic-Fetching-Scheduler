@@ -1,13 +1,16 @@
 package dynamicFetchingScheduler.server.service
 
 import dynamicFetchingScheduler.server.domain.ProviderInput
-import dynamicFetchingScheduler.server.testWithTransactionManagerAndRollback
+import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension
+import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension.testWithTransactionManagerAndRollback
 import java.net.URL
 import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertNotNull
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(SchemaManagementExtension::class)
 class FetchDataServiceTest {
 
 	private val dummyProviderInput = ProviderInput(
@@ -36,7 +39,13 @@ class FetchDataServiceTest {
 		service.fetchAndSave(provider.id, provider.url)
 
 		val result = tm.run {
-			it.providerRepository.findProviderDataWithinDateRange(provider.id, beginTime, LocalDateTime.now(), testPageNr, testPageSize)
+			it.providerRepository.findProviderDataWithinDateRange(
+				provider.id,
+				beginTime,
+				LocalDateTime.now(),
+				testPageNr,
+				testPageSize
+			)
 		}
 
 		// assert
@@ -61,7 +70,13 @@ class FetchDataServiceTest {
 		service.fetchAndSave(provider.id, provider.url)
 
 		val result = tm.run {
-			it.providerRepository.findProviderDataWithinDateRange(provider.id, beginTime, endTime, testPageNr, testPageSize)
+			it.providerRepository.findProviderDataWithinDateRange(
+				provider.id,
+				beginTime,
+				endTime,
+				testPageNr,
+				testPageSize
+			)
 		}
 
 		// assert
