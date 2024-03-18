@@ -1,6 +1,6 @@
 package dynamicFetchingScheduler.server.service
 
-import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension
+import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 

@@ -68,7 +68,7 @@ class ProviderController(
 	 * @param id The id of the provider to update
 	 * @param provider The provider to be updated
 	 */
-	@PostMapping(URIs.UPDATE_PROVIDER)
+	@PostMapping(URIs.PROVIDER_WITH_ID)
 	fun update(@PathVariable id: Int, @RequestBody provider: ProviderInputModel): ResponseEntity<*> {
 		val newProvider = provider.toProviderInput()
 
@@ -91,7 +91,7 @@ class ProviderController(
 	 *
 	 * @param id The id of the provider to delete
 	 */
-	@DeleteMapping(URIs.UPDATE_PROVIDER)
+	@DeleteMapping(URIs.PROVIDER_WITH_ID)
 	fun delete(@PathVariable id: Int): ResponseEntity<String> {
 		return when (val result = providerService.deleteProvider(id)) {
 			is Success -> {
@@ -123,7 +123,7 @@ class ProviderController(
 	 *
 	 * @param id The id of the provider to get
 	 */
-	@GetMapping(URIs.UPDATE_PROVIDER)
+	@GetMapping(URIs.PROVIDER_WITH_ID)
 	fun providerWithData(
 		@PathVariable id: Int,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) beginDate: LocalDateTime,

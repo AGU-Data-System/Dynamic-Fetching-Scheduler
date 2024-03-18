@@ -1,4 +1,4 @@
-package dynamicFetchingScheduler.server.testUtils.jdbiUtils
+package dynamicFetchingScheduler.server.testUtils
 
 import dynamicFetchingScheduler.server.repository.Transaction
 import dynamicFetchingScheduler.server.repository.TransactionManager
@@ -13,6 +13,9 @@ import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.postgresql.ds.PGSimpleDataSource
 
+/**
+ * A JUnit 5 extension that creates and drops a schema before and after all tests.
+ */
 object SchemaManagementExtension : BeforeAllCallback, AfterAllCallback {
 
 	private const val SCHEMA_NAME = "test_schema"

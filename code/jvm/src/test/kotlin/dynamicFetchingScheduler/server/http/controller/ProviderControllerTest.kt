@@ -1,7 +1,7 @@
 package dynamicFetchingScheduler.server.http.controller
 
 import dynamicFetchingScheduler.server.http.controller.models.inputModels.ProviderInputModel
-import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension
+import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
 import java.time.Duration
 import kotlin.test.Test
 import org.junit.jupiter.api.extension.ExtendWith

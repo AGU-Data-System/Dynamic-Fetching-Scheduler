@@ -96,7 +96,7 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 			.bind("id", id)
 			.mapTo<Provider>()
 			.one()
-		// TODO: Alternative is updating directly since we have the id but there we lose a logging statement
+
 		logger.info("Updating provider: {}", oldProvider)
 
 		handle.createUpdate(

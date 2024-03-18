@@ -4,8 +4,8 @@ import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.domain.RawData
 import dynamicFetchingScheduler.server.repository.provider.JDBIProviderRepository
 import dynamicFetchingScheduler.server.repository.rawData.JDBIRawDataRepository
-import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension
-import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension.testWithHandleAndRollback
+import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
+import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension.testWithHandleAndRollback
 import java.net.URL
 import java.time.Duration
 import java.time.LocalDateTime

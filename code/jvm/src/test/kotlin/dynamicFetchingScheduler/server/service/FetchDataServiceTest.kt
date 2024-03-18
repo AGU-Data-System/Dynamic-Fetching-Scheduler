@@ -1,8 +1,8 @@
 package dynamicFetchingScheduler.server.service
 
 import dynamicFetchingScheduler.server.domain.ProviderInput
-import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension
-import dynamicFetchingScheduler.server.testUtils.jdbiUtils.SchemaManagementExtension.testWithTransactionManagerAndRollback
+import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
+import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension.testWithTransactionManagerAndRollback
 import java.net.URL
 import java.time.Duration
 import java.time.LocalDateTime
