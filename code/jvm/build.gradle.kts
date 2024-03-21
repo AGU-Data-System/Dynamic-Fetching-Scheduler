@@ -30,6 +30,7 @@ dependencies {
 	implementation("org.json:json:20231013")
 
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+	implementation("com.google.code.gson:gson:2.8.8")
 
 	// for JDBI
 	implementation("org.jdbi:jdbi3-core:3.37.1")
