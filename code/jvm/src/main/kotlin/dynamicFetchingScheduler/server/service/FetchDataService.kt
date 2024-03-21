@@ -33,8 +33,8 @@ class FetchDataService(
 		transactionManager.run {
 			val provider = it.providerRepository.find(providerId) ?: return@run
 			val curTime = LocalDateTime.now()
-			it.rawDataRepository.saveRawData(RawData(provider.id, curTime, response.body))
 			it.providerRepository.updateLastFetch(providerId, curTime)
+			it.rawDataRepository.saveRawData(RawData(provider.id, curTime, response.body))
 			logger.info("Saved data from provider on Database with url: {} and id: {}", providerURL, providerId)
 		}
 	}

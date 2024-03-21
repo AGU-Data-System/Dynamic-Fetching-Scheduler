@@ -29,6 +29,8 @@ dependencies {
 	//json object
 	implementation("org.json:json:20231013")
 
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+
 	// for JDBI
 	implementation("org.jdbi:jdbi3-core:3.37.1")
 	implementation("org.jdbi:jdbi3-kotlin:3.37.1")

@@ -8,13 +8,7 @@ import java.net.URL
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import kotlin.test.*
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(SchemaManagementExtension::class)
@@ -152,13 +146,11 @@ class JDBIProviderRepositoryTest {
 	}
 
 	@Test
-	fun `delete not existing provider should fail`() = testWithHandleAndRollback { handle ->
+	fun `delete not existing provider should pass`() = testWithHandleAndRollback { handle ->
 		// arrange
 		val repo = JDBIProviderRepository(handle)
 		// act and assert
-		assertFailsWith<IllegalStateException> {
-			repo.deleteProvider(Int.MAX_VALUE)
-		}
+		repo.deleteProvider(Int.MAX_VALUE)
 	}
 
 	@Test

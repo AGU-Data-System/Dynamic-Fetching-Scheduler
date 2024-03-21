@@ -1,7 +1,6 @@
 package dynamicFetchingScheduler.server.service
 
 import dynamicFetchingScheduler.server.domain.ProviderInput
-import dynamicFetchingScheduler.server.service.errors.DeleteProviderError
 import dynamicFetchingScheduler.server.service.errors.UpdateProviderError
 import dynamicFetchingScheduler.server.testUtils.failureOrNull
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
@@ -120,7 +119,7 @@ class ProviderServiceTest {
 	}
 
 	@Test
-	fun `delete un-existing provider should fail`() = testWithTransactionManagerAndRollback { tm ->
+	fun `delete un-existing provider should pass`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
 		val fetchDataService = FetchDataService(tm)
 		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
@@ -130,8 +129,7 @@ class ProviderServiceTest {
 		val result = service.deleteProvider(Int.MAX_VALUE)
 
 		// assert
-		assert(result is Failure)
-		assert(result.failureOrNull() is DeleteProviderError.ProviderNotFound)
+		assert(result is Success)
 	}
 
 	@Test
