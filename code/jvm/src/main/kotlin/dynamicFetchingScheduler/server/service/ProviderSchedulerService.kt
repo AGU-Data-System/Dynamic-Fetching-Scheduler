@@ -69,6 +69,15 @@ class ProviderSchedulerService(
 	}
 
 	/**
+	 * Get the ids of the providers that are scheduled to be fetched.
+	 *
+	 * @return The ids of the providers that are scheduled to be fetched
+	 */
+	fun getScheduledProviderIds(): List<Int> {
+		return scheduledTasks.keys.toList()
+	}
+
+	/**
 	 * Calculate the initial delay for a provider to be fetched.
 	 *
 	 * @param lastFetched The last time the provider was fetched

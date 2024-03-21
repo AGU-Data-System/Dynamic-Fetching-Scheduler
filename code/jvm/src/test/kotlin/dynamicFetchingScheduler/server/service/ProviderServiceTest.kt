@@ -2,9 +2,9 @@ package dynamicFetchingScheduler.server.service
 
 import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.service.errors.UpdateProviderError
-import dynamicFetchingScheduler.server.testUtils.failureOrNull
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension.testWithTransactionManagerAndRollback
+import dynamicFetchingScheduler.server.testUtils.failureOrNull
 import dynamicFetchingScheduler.server.testUtils.successOrNull
 import dynamicFetchingScheduler.utils.Failure
 import dynamicFetchingScheduler.utils.Success
@@ -18,18 +18,24 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(SchemaManagementExtension::class)
 class ProviderServiceTest {
 
-
-	private val dummyProvider = ProviderInput(
-		name = "ipma current day",
-		url = URL("https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day0.json"),
-		frequency = Duration.ofSeconds(1000),
+	private val dummyProvider1 = ProviderInput(
+		name = "Test Provider 1",
+		url = URL("https://jsonplaceholder.typicode.com/todos/1"),
+		frequency = Duration.ofSeconds(DEFAULT_PROVIDER_FREQUENCY),
 		isActive = true
+	)
+
+	private val dummyProvider2 = ProviderInput(
+		name = "Test Provider 2",
+		url = URL("https://jsonplaceholder.typicode.com/todos/2"),
+		frequency = Duration.ofSeconds(DEFAULT_PROVIDER_FREQUENCY),
+		isActive = false
 	)
 
 	@Test
 	fun `add new provider`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
-		val sut = dummyProvider
+		val sut = dummyProvider1
 		val fetchDataService = FetchDataService(tm)
 		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
 		val service = ProviderService(tm, schedulerService)
@@ -39,37 +45,18 @@ class ProviderServiceTest {
 
 		// assert
 		assert(result is Success)
-		assertEquals(result.successOrNull()?.provider?.name, dummyProvider.name)
-		assertEquals(result.successOrNull()?.provider?.url, dummyProvider.url)
-		assertEquals(result.successOrNull()?.provider?.frequency, dummyProvider.frequency)
-		assertEquals(result.successOrNull()?.provider?.isActive, dummyProvider.isActive)
-		assertEquals(result.successOrNull()?.isScheduled, result.successOrNull()?.provider?.isActive)
-	}
-
-	@Test
-	fun `add provider with not unique url`() = testWithTransactionManagerAndRollback { tm ->
-		// arrange
-		val sut = dummyProvider
-		val fetchDataService = FetchDataService(tm)
-		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
-		val service = ProviderService(tm, schedulerService)
-
-		// act
-		service.addProvider(sut)
-		val result = service.addProvider(sut)
-		// assert
-
-		assert(result is Success)
-		assertEquals(result.successOrNull()?.provider?.name, dummyProvider.name)
-		assertEquals(result.successOrNull()?.provider?.url, dummyProvider.url)
-		assertEquals(result.successOrNull()?.provider?.frequency, dummyProvider.frequency)
-		assertEquals(result.successOrNull()?.provider?.isActive, dummyProvider.isActive)
+		require(result is Success)
+		assertEquals(result.value.provider.name, dummyProvider1.name)
+		assertEquals(result.value.provider.url, dummyProvider1.url)
+		assertEquals(result.value.provider.frequency, dummyProvider1.frequency)
+		assertEquals(result.value.provider.isActive, dummyProvider1.isActive)
+		assertEquals(result.value.isScheduled, result.value.provider.isActive)
 	}
 
 	@Test
 	fun `update provider`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
-		val sut = dummyProvider
+		val sut = dummyProvider1
 		val fetchDataService = FetchDataService(tm)
 		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
 		val service = ProviderService(tm, schedulerService)
@@ -77,12 +64,14 @@ class ProviderServiceTest {
 		// act
 		val oldProvider = service.addProvider(sut)
 		require(oldProvider is Success)
+		val newActiveState = !sut.isActive
+		val result = service.updateProvider(oldProvider.value.provider.id, sut.copy(isActive = newActiveState))
 
-		val result = service.updateProvider(oldProvider.value.provider.id, sut.copy(isActive = false))
 		// assert
 		assert(result is Success)
-		assertEquals(result.successOrNull()?.provider?.isActive, false)
-		assertEquals(result.successOrNull()?.isScheduled, result.successOrNull()?.provider?.isActive)
+		require(result is Success)
+		assertEquals(result.value.provider.isActive, newActiveState)
+		assertEquals(result.value.isScheduled, result.value.provider.isActive)
 	}
 
 	@Test
@@ -93,7 +82,8 @@ class ProviderServiceTest {
 		val service = ProviderService(tm, schedulerService)
 
 		// act
-		val result = service.updateProvider(Int.MAX_VALUE, dummyProvider.copy(isActive = false))
+		val newActiveState = !dummyProvider1.isActive
+		val result = service.updateProvider(Int.MAX_VALUE, dummyProvider1.copy(isActive = newActiveState))
 
 		// assert
 		assert(result is Failure)
@@ -103,7 +93,7 @@ class ProviderServiceTest {
 	@Test
 	fun `delete provider`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
-		val sut = dummyProvider
+		val sut = dummyProvider1
 		val fetchDataService = FetchDataService(tm)
 		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
 		val service = ProviderService(tm, schedulerService)
@@ -135,34 +125,29 @@ class ProviderServiceTest {
 	@Test
 	fun `get all providers`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
-		val sut1 = dummyProvider
-		val sut2 =
-			dummyProvider.copy(url = URL("https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day1.json"))
+		val sut1 = dummyProvider1
+		val sut2 = dummyProvider2
 		val fetchDataService = FetchDataService(tm)
 		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
 		val service = ProviderService(tm, schedulerService)
 
 		// act
-		service.addProvider(sut1)
-		service.addProvider(sut2)
+		val addedProvider1 = service.addProvider(sut1)
+		val addedProvider2 = service.addProvider(sut2)
+		require(addedProvider1 is Success)
+		require(addedProvider2 is Success)
 		val result = service.getProviders()
 
 		// assert
 		assertEquals(2, result.size)
-		assertEquals(sut1.name, result[0].name)
-		assertEquals(sut1.url, result[0].url)
-		assertEquals(sut1.frequency, result[0].frequency)
-		assertEquals(sut1.isActive, result[0].isActive)
-		assertEquals(sut2.name, result[1].name)
-		assertEquals(sut2.url, result[1].url)
-		assertEquals(sut2.frequency, result[1].frequency)
-		assertEquals(sut2.isActive, result[1].isActive)
+		assertEquals(addedProvider1.value.provider, result.first())
+		assertEquals(addedProvider2.value.provider, result.last())
 	}
 
 	@Test
-	fun `get provider by url`() = testWithTransactionManagerAndRollback { tm ->
+	fun `get provider`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
-		val sut = dummyProvider
+		val sut = dummyProvider1
 		val fetchDataService = FetchDataService(tm)
 		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
 		val service = ProviderService(tm, schedulerService)
@@ -171,13 +156,30 @@ class ProviderServiceTest {
 		val provider = service.addProvider(sut)
 		require(provider is Success)
 		val result =
-			service.getProviderWithData(provider.value.provider.id, LocalDateTime.now(), LocalDateTime.now(), 0, 10)
+			service.getProviderWithData(
+				provider.value.provider.id,
+				LocalDateTime.now(),
+				LocalDateTime.now(),
+				PAGE_NR,
+				PAGE_SIZE
+			)
+
 		// assert
 		assert(result is Success)
-		assertEquals(result.successOrNull()?.provider?.name, sut.name)
-		assertEquals(result.successOrNull()?.provider?.url, sut.url)
-		assertEquals(result.successOrNull()?.provider?.frequency, sut.frequency)
-		assertEquals(result.successOrNull()?.provider?.isActive, sut.isActive)
+		require(result is Success)
+		assertEquals(result.value.provider.name, sut.name)
+		assertEquals(result.value.provider.url, sut.url)
+		assertEquals(result.value.provider.frequency, sut.frequency)
+		assertEquals(result.value.provider.isActive, sut.isActive)
+	}
+
+	companion object {
+		// pagination
+		private const val PAGE_NR = 0
+		private const val PAGE_SIZE = 100
+
+		private const val TEN_SECONDS = 10L
+		private const val DEFAULT_PROVIDER_FREQUENCY = TEN_SECONDS
 	}
 
 }

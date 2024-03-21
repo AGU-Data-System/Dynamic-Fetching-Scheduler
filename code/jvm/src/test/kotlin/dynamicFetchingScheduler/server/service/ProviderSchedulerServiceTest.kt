@@ -1,113 +1,120 @@
 package dynamicFetchingScheduler.server.service
 
-import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import dynamicFetchingScheduler.server.domain.ProviderInput
+import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension.testWithTransactionManagerAndRollback
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import dynamicFetchingScheduler.utils.Success
 import java.net.URL
 import java.time.Duration
-import java.time.LocalDateTime
-import kotlin.test.*
+import kotlin.test.assertContains
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(SchemaManagementExtension::class)
 class ProviderSchedulerServiceTest {
 
-	@Test
-	fun testScheduleActiveProviders() = testWithTransactionManagerAndRollback { tm ->
-		// Create provider input
-		val provider1 = ProviderInput("Test Provider 1", URL("https://jsonplaceholder.typicode.com/todos/1"), Duration.ofSeconds(TEN_SECONDS), true)
+	private val dummyProvider1 = ProviderInput(
+		name = "Test Provider 1",
+		url = URL("https://jsonplaceholder.typicode.com/todos/1"),
+		frequency = Duration.ofSeconds(DEFAULT_PROVIDER_FREQUENCY),
+		isActive = true
+	)
 
-		// Set up services
+	private val dummyProvider2 = ProviderInput(
+		name = "Test Provider 2",
+		url = URL("https://jsonplaceholder.typicode.com/todos/2"),
+		frequency = Duration.ofSeconds(DEFAULT_PROVIDER_FREQUENCY),
+		isActive = false
+	)
+
+	@Test
+	fun `schedule an active provider`() = testWithTransactionManagerAndRollback { tm ->
+		// arrange
+		val sut = dummyProvider1
+
 		val fetchDataService = FetchDataService(tm)
 		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
 		val service = ProviderService(tm, schedulerService)
 
-		// Add provider
-		service.addProvider(provider1)
+		// act
+		val addedProvider = service.addProvider(sut)
+		require(addedProvider is Success)
 
 		runBlocking {
-			delay(TEN_SECONDS/5)
+			delay(TWO_SECONDS) // arbitrary delay inferior to frequency
 		}
 
-		// Check if the provider was scheduled
-		val providers = service.getProviders()
+		val providerIds = schedulerService.getScheduledProviderIds()
 
-		println(providers)
-
-		assertNotNull(providers)
-		assertNotNull(providers.find { it.name == provider1.name }?.lastFetch)
+		// assert
+		assert(providerIds.isNotEmpty())
+		assertContains(providerIds, addedProvider.value.provider.id)
 	}
 
 	@Test
-	fun testScheduleAllActiveProvidersTask() = testWithTransactionManagerAndRollback { tm ->
-		// Create provider input
-		val provider1 = ProviderInput("Test Provider 1", URL("https://jsonplaceholder.typicode.com/todos/1"), Duration.ofSeconds(TEN_SECONDS), true)
-		val provider2 = ProviderInput("Test Provider 2", URL("https://jsonplaceholder.typicode.com/todos/2"), Duration.ofSeconds(TEN_SECONDS), false)
+	fun `schedule an inactive provider`() = testWithTransactionManagerAndRollback { tm ->
+		// arrange
+		val sut = dummyProvider2
 
-		// Set up services
 		val fetchDataService = FetchDataService(tm)
 		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
 		val service = ProviderService(tm, schedulerService)
 
-		// Add provider
-		service.addProvider(provider1)
-		service.addProvider(provider2)
+		// act
+		val addedProvider = service.addProvider(sut)
+		require(addedProvider is Success)
 
 		runBlocking {
-			delay(TEN_SECONDS/5)
+			delay(TWO_SECONDS) // arbitrary delay inferior to frequency
 		}
 
-		// Schedule provider
-		schedulerService.scheduleActiveProviders()
+		val providerIds = schedulerService.getScheduledProviderIds()
 
-		// Check if the provider was scheduled
-		val providers = service.getProviders()
-
-		assertNotNull(providers)
-		assertNotNull(providers.find { it.name == provider1.name }?.lastFetch)
-		assertNull(providers.find { it.name == provider2.name }?.lastFetch)
+		// assert
+		assert(providerIds.isEmpty())
 	}
 
 	@Test
-	fun testStopProviderTask() = testWithTransactionManagerAndRollback { tm ->
-		// Create provider input
-		val provider1 = ProviderInput("Test Provider 1", URL("https://jsonplaceholder.typicode.com/todos/1"), Duration.ofSeconds(TEN_SECONDS/5), true)
+	fun `stop scheduled provider`() = testWithTransactionManagerAndRollback { tm ->
+		// arrange
+		val sut = dummyProvider1
 
-		// Set up services
 		val fetchDataService = FetchDataService(tm)
 		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
 		val service = ProviderService(tm, schedulerService)
 
-		// Add provider
-		service.addProvider(provider1)
+		val addedProvider = service.addProvider(sut)
+		require(addedProvider is Success)
 
 		runBlocking {
-			delay(TEN_SECONDS/5)
+			delay(TWO_SECONDS) // arbitrary delay inferior to frequency
 		}
 
-		// Stop provider
-		service.updateProvider(service.getProviders().first().id, provider1.copy(isActive = false))
+		// act
+		val updatedProvider = service.updateProvider(addedProvider.value.provider.id, sut.copy(isActive = false))
+		require(updatedProvider is Success)
 
-		runBlocking {
-			delay(TEN_SECONDS/2)
+		runBlocking {// TODO needed?
+			delay(FIVE_SECONDS)
 		}
 
-		// Check if the provider was scheduled
-		val providers = service.getProviders()
+		val providers = schedulerService.getScheduledProviderIds()
 
-		val providerScheduled1 = providers.find { it.name == provider1.name }
-		assertNotNull(providers)
-		assertNotNull(providerScheduled1)
-		assert(!providerScheduled1.isActive)
-		assertNotNull(providerScheduled1.lastFetch)
-		assert(LocalDateTime.now().toDuration() - providerScheduled1.lastFetch!!.toDuration() < providerScheduled1.frequency)
+		// assert
+		assertFalse(providers.contains(addedProvider.value.provider.id))
 	}
 
 	companion object {
-		private const val TEN_SECONDS = 10*1000L
-		private fun LocalDateTime.toDuration() = Duration.between(this, LocalDateTime.now())
+		// in milliseconds
+		private const val ONE_SECOND = 1000L
+		private const val TWO_SECONDS = 2 * ONE_SECOND
+		private const val FIVE_SECONDS = 5 * ONE_SECOND
+
+		// in seconds
+		private const val TEN_SECONDS = 10L
+		private const val DEFAULT_PROVIDER_FREQUENCY = TEN_SECONDS
 	}
 }

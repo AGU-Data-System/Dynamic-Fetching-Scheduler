@@ -8,30 +8,28 @@ import java.net.URL
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(SchemaManagementExtension::class)
 class JDBIProviderRepositoryTest {
 
 	private val dummyProvider1 = ProviderInput(
-		name = "ipma current day",
-		url = URL("https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day0.json"),
-		frequency = Duration
-			.ofDays(1)
-			.plusHours(1)
-			.plusMinutes(1)
-			.plusSeconds(1),
+		name = "Test Provider 1",
+		url = URL("https://jsonplaceholder.typicode.com/todos/1"),
+		frequency = Duration.ofSeconds(DEFAULT_PROVIDER_FREQUENCY),
 		isActive = true
 	)
+
 	private val dummyProvider2 = ProviderInput(
-		name = "ipma next day",
-		url = URL("https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day1.json"),
-		frequency = Duration
-			.ofDays(2)
-			.plusHours(2)
-			.plusMinutes(2)
-			.plusSeconds(2),
+		name = "Test Provider 2",
+		url = URL("https://jsonplaceholder.typicode.com/todos/2"),
+		frequency = Duration.ofSeconds(DEFAULT_PROVIDER_FREQUENCY),
 		isActive = true
 	)
 
@@ -41,8 +39,10 @@ class JDBIProviderRepositoryTest {
 		val repo = JDBIProviderRepository(handle)
 		repo.addProvider(dummyProvider1)
 		repo.addProvider(dummyProvider2)
+
 		// act
 		val result = repo.getActiveProviders()
+
 		// assert
 		assertEquals(2, result.size)
 	}
@@ -52,11 +52,13 @@ class JDBIProviderRepositoryTest {
 		// arrange
 		val repo = JDBIProviderRepository(handle)
 		val sut = dummyProvider1
+
 		// act
 		val addedProvider = repo.addProvider(sut)
 		val curTime = LocalDateTime.now()
 		repo.updateLastFetch(addedProvider.id, curTime)
 		val result = repo.find(addedProvider.id)
+
 		// assert
 		assertNotNull(result)
 		assertNotNull(result.lastFetch)
@@ -69,9 +71,11 @@ class JDBIProviderRepositoryTest {
 		// arrange
 		val sut = dummyProvider1
 		val repo = JDBIProviderRepository(handle)
+
 		// act
 		val addedProvider = repo.addProvider(sut)
 		val result = repo.find(addedProvider.id)
+
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)
@@ -85,9 +89,11 @@ class JDBIProviderRepositoryTest {
 		// arrange
 		val sut = dummyProvider2
 		val repo = JDBIProviderRepository(handle)
+
 		// act
 		val addedProvider = repo.addProvider(sut)
 		val result = repo.find(addedProvider.id)
+
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)
@@ -102,9 +108,11 @@ class JDBIProviderRepositoryTest {
 		val sut = dummyProvider1
 		val repo = JDBIProviderRepository(handle)
 		val addedProvider = repo.addProvider(sut)
+
 		// act
 		repo.updateProvider(addedProvider.id, sut.copy(isActive = false))
 		val result = repo.find(addedProvider.id)
+
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)
@@ -138,9 +146,11 @@ class JDBIProviderRepositoryTest {
 		val addedProvider = repo.addProvider(sut)
 		val findAfterInsert = repo.find(addedProvider.id)
 		assertNotNull(findAfterInsert)
+
 		// act
 		repo.deleteProvider(addedProvider.id)
 		val result = repo.find(addedProvider.id)
+
 		// assert
 		assertNull(result)
 	}
@@ -149,6 +159,7 @@ class JDBIProviderRepositoryTest {
 	fun `delete not existing provider should pass`() = testWithHandleAndRollback { handle ->
 		// arrange
 		val repo = JDBIProviderRepository(handle)
+
 		// act and assert
 		repo.deleteProvider(Int.MAX_VALUE)
 	}
@@ -157,10 +168,12 @@ class JDBIProviderRepositoryTest {
 	fun `get provider by url`() = testWithHandleAndRollback { handle ->
 		// arrange
 		val sut = dummyProvider1
+
 		// act
 		val repo = JDBIProviderRepository(handle)
 		val addedProvider = repo.addProvider(sut)
 		val result = repo.find(addedProvider.id)
+
 		// assert
 		assertNotNull(result)
 		assertEquals(sut.name, result.name)
@@ -175,10 +188,12 @@ class JDBIProviderRepositoryTest {
 		val repo = JDBIProviderRepository(handle)
 		val sut1 = dummyProvider1
 		val sut2 = dummyProvider2
+
 		// act
 		val addedProvider1 = repo.addProvider(sut1)
 		val addedProvider2 = repo.addProvider(sut2)
 		val result = repo.allProviders()
+
 		// assert
 		assertEquals(2, result.size)
 		assertTrue(result.first().id == addedProvider1.id || result.first().id == addedProvider2.id)
@@ -188,15 +203,29 @@ class JDBIProviderRepositoryTest {
 	fun `get provider data`() = testWithHandleAndRollback { handle ->
 		// arrange
 		val repo = JDBIProviderRepository(handle)
-		val sut = dummyProvider1.copy(frequency = Duration.ofSeconds(10))
+		val sut = dummyProvider1
 		val beginTime = LocalDateTime.now()
+
 		// act
 		val addedProvider = repo.addProvider(sut)
-		Thread.sleep(35 * 1000) // sleep for 30 seconds
+		Thread.sleep(SEVENTEEN_SECONDS)
 		val endTime = LocalDateTime.now()
-		val result = repo.findProviderDataWithinDateRange(addedProvider.id, beginTime, endTime, 0, 10)
+		val result = repo.findProviderDataWithinDateRange(addedProvider.id, beginTime, endTime, PAGE_NR, PAGE_SIZE)
+
 		// assert
 		assertNotNull(result)
 		assertTrue(result.all { it.providerId == addedProvider.id })
+	}
+
+	companion object {
+		// pagination
+		private const val PAGE_NR = 0
+		private const val PAGE_SIZE = 100
+
+		// time
+		private const val ONE_SECOND = 1000L
+		private const val FIVE_SECONDS = 5L
+		private const val SEVENTEEN_SECONDS = 17 * ONE_SECOND
+		private const val DEFAULT_PROVIDER_FREQUENCY = FIVE_SECONDS
 	}
 }

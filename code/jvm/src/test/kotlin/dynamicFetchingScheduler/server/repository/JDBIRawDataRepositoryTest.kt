@@ -21,13 +21,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 class JDBIRawDataRepositoryTest {
 
 	private val dummyProvider = ProviderInput(
-		name = "ipma current day",
-		url = URL("https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day0.json"),
-		frequency = Duration
-			.ofDays(1)
-			.plusHours(1)
-			.plusMinutes(1)
-			.plusSeconds(1),
+		name = "Test Provider 1",
+		url = URL("https://jsonplaceholder.typicode.com/todos/1"),
+		frequency = Duration.ofSeconds(DEFAULT_PROVIDER_FREQUENCY),
 		isActive = true
 	)
 
@@ -44,18 +40,24 @@ class JDBIRawDataRepositoryTest {
 		val providerSut = providerRepo.find(provider.id)
 		assertNotNull(providerSut)
 		val beginTime = LocalDateTime.now()
-		Thread.sleep(Duration.ofSeconds(1).toMillis())
+		Thread.sleep(ONE_SECOND)
 		val rawDataSut = RawData(providerSut!!.id, LocalDateTime.now(), jsonData)
 		rawDataRepo.saveRawData(rawDataSut)
 
 		val result =
-			providerRepo.findProviderDataWithinDateRange(providerSut.id, beginTime, LocalDateTime.now(), 0, 1000)
+			providerRepo.findProviderDataWithinDateRange(
+				providerSut.id,
+				beginTime,
+				LocalDateTime.now(),
+				PAGE_NR,
+				PAGE_SIZE
+			)
 
 		// assert
 		assertEquals(1, result.size)
-		assertEquals(jsonData, result[0].data)
-		assertEquals(providerSut.id, result[0].providerId)
-		assertTrue { result[0].fetchTime.isBefore(LocalDateTime.now()) }
+		assertEquals(jsonData, result.first().data)
+		assertEquals(providerSut.id, result.first().providerId)
+		assertTrue { result.first().fetchTime.isBefore(LocalDateTime.now()) }
 	}
 
 	@Test
@@ -76,5 +78,16 @@ class JDBIRawDataRepositoryTest {
 		assertFailsWith<UnableToExecuteStatementException> {
 			rawDataRepo.saveRawData(rawDataSut)
 		}
+	}
+
+	companion object {
+		// pagination
+		private const val PAGE_NR = 0
+		private const val PAGE_SIZE = 100
+
+		// time
+		private const val ONE_SECOND = 1000L
+		private const val FIVE_SECONDS = 5L
+		private const val DEFAULT_PROVIDER_FREQUENCY = FIVE_SECONDS
 	}
 }

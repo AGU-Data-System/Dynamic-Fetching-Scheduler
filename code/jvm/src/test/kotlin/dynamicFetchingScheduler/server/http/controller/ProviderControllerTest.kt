@@ -4,26 +4,26 @@ import com.google.gson.Gson
 import dynamicFetchingScheduler.server.http.controller.models.inputModels.ProviderInputModel
 import dynamicFetchingScheduler.server.http.controller.models.outputModels.ProviderOutputModel
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
+import java.time.Duration
+import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
-import java.time.Duration
-import kotlin.test.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(SchemaManagementExtension::class)
 class ProviderControllerTest {
 
-	private val dummyProviderInput = ProviderInputModel(
-		name = "ipma current day",
-		url = "https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day0.json",
-		frequency = Duration.ofSeconds(TEN_SECONDS).toString(),
+	private val dummyProvider = ProviderInputModel(
+		name = "Test Provider 1",
+		url = "https://jsonplaceholder.typicode.com/todos/1",
+		frequency = Duration.ofSeconds(DEFAULT_PROVIDER_FREQUENCY).toString(),
 		isActive = true
 	)
 
@@ -39,7 +39,7 @@ class ProviderControllerTest {
 			.responseTimeout(Duration.ofHours(1))
 			.build()
 
-		val sut = addProvider(client, dummyProviderInput)
+		val sut = addProvider(client, dummyProvider)
 		val result = getAllProviders(client)
 
 		assert(result.isNotEmpty())
@@ -68,12 +68,12 @@ class ProviderControllerTest {
 
 		assert(resultList1.providers.isNotEmpty())
 
-		val provider = resultList1.providers.first { it.name == providerInput.name && it.url == providerInput.url}
+		val provider = resultList1.providers.first { it.name == providerInput.name && it.url == providerInput.url }
 
 		val updatedProviderModel = ProviderInputModel(
 			name = "Updated name",
 			url = "https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day1.json",
-			frequency = Duration.ofSeconds(TEN_SECONDS/2).toString(),
+			frequency = Duration.ofSeconds(TEN_SECONDS / 2).toString(),
 			isActive = false
 		)
 
@@ -96,19 +96,19 @@ class ProviderControllerTest {
 			.responseTimeout(Duration.ofHours(1))
 			.build()
 
-		addProvider(client, dummyProviderInput)
-		addProvider(client, dummyProviderInput.copy(name = "Test Delete"))
+		addProvider(client, dummyProvider)
+		addProvider(client, dummyProvider.copy(name = "Test Delete"))
 
 		val resultList1 = GSON.fromJson(getAllProviders(client), ProviderList::class.java)
 
 		assert(resultList1.providers.isNotEmpty())
 
-		val providerToDelete = resultList1.providers.find { it.url == dummyProviderInput.url && it.name == "Test Delete" }
+		val providerToDelete = resultList1.providers.find { it.url == dummyProvider.url && it.name == "Test Delete" }
 		assertNotNull(providerToDelete)
 
 		runBlocking {
 			// Wait for the provider to be fetched
-			delay(TEN_SECONDS/2)
+			delay(TEN_SECONDS / 2)
 		}
 
 		deleteProvider(client, providerToDelete.id)
@@ -146,7 +146,9 @@ class ProviderControllerTest {
 	}
 
 	companion object {
-		private const val TEN_SECONDS = 10*1000L
+		private const val ONE_SECOND = 1000L
+		private const val TEN_SECONDS = 10 * ONE_SECOND
+		private const val DEFAULT_PROVIDER_FREQUENCY = 10L
 		private val GSON = Gson()
 
 		private data class ProviderList(
