@@ -129,13 +129,19 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 */
 	override fun deleteProvider(id: Int) {
 
+		logger.info("Deleting provider data from provider with id: {}", id)
+
+		handle.createUpdate("DELETE FROM raw_data WHERE provider_id = :id")
+			.bind("id", id)
+			.execute()
+
 		logger.info("Deleting provider with id: {}", id)
 
 		handle.createUpdate("DELETE FROM provider WHERE id = :id")
 			.bind("id", id)
 			.execute()
 
-		logger.info("Provider deleted")
+		logger.info("Provider deleted and all its data")
 	}
 
 	/**
