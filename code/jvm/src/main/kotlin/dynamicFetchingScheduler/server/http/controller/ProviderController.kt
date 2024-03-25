@@ -136,7 +136,7 @@ class ProviderController(
 				logger.info("Provider fetched successfully")
 				val provider = result.value.provider
 				val pagedData = result.value.data
-				val providerWithData = ProviderWithData(provider, pagedData.items) //TODO: Probably not correct because it's domain and should be in service layer
+				val providerWithData = ProviderWithData(provider, pagedData.items)
 				ResponseEntity
 					.ok()
 					.addPaginationHeaders(pagedData.totalItems, pagedData.totalPages, pagedData.currentPage, pagedData.items.size)

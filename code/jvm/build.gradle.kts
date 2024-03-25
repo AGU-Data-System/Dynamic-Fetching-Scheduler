@@ -23,20 +23,14 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-	//kotlin datetime
-	implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
-
-	//json object
-	implementation("org.json:json:20231013")
-
+	// for coroutines
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
-	implementation("com.google.code.gson:gson:2.8.8")
 
 	// for JDBI
 	implementation("org.jdbi:jdbi3-core:3.37.1")
 	implementation("org.jdbi:jdbi3-kotlin:3.37.1")
 	implementation("org.jdbi:jdbi3-postgres:3.37.1")
-	implementation("org.postgresql:postgresql:42.5.4")
+	implementation("org.postgresql:postgresql:42.7.3")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 

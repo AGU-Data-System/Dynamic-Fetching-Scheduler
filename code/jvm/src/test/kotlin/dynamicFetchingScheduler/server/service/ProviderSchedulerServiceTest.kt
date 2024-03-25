@@ -97,10 +97,6 @@ class ProviderSchedulerServiceTest {
 		val updatedProvider = service.updateProvider(addedProvider.value.provider.id, sut.copy(isActive = false))
 		require(updatedProvider is Success)
 
-		runBlocking {// TODO needed?
-			delay(FIVE_SECONDS)
-		}
-
 		val providers = schedulerService.getScheduledProviderIds()
 
 		// assert
@@ -111,7 +107,6 @@ class ProviderSchedulerServiceTest {
 		// in milliseconds
 		private const val ONE_SECOND = 1000L
 		private const val TWO_SECONDS = 2 * ONE_SECOND
-		private const val FIVE_SECONDS = 5 * ONE_SECOND
 
 		// in seconds
 		private const val TEN_SECONDS = 10L

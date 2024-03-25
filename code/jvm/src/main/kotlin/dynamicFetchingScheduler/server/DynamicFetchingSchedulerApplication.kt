@@ -1,7 +1,6 @@
 package dynamicFetchingScheduler.server
 
 import dynamicFetchingScheduler.server.repository.configureWithAppRequirements
-import kotlinx.datetime.Clock
 import org.jdbi.v3.core.Jdbi
 import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -10,7 +9,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.web.client.RestTemplate
 
 @SpringBootApplication
-class UAGSystemApplication {
+class DynamicFetchingSchedulerApplication {
 
 	/**
 	 * Creates a JDBI instance.
@@ -21,13 +20,6 @@ class UAGSystemApplication {
 			setURL(Environment.getDbUrl())
 		}
 	).configureWithAppRequirements()
-
-
-	/**
-	 * Creates a clock.
-	 */
-	@Bean
-	fun clock() = Clock.System
 
 	/**
 	 * Creates a RestTemplate.
@@ -41,5 +33,5 @@ class UAGSystemApplication {
  * Entry point of the application.
  */
 fun main(args: Array<String>) {
-	runApplication<UAGSystemApplication>(*args)
+	runApplication<DynamicFetchingSchedulerApplication>(*args)
 }

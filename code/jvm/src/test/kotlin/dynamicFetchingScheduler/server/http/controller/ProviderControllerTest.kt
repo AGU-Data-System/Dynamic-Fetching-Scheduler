@@ -1,16 +1,22 @@
 package dynamicFetchingScheduler.server.http.controller
 
-import com.google.gson.Gson
-import dynamicFetchingScheduler.server.http.controller.models.inputModels.ProviderInputModel
-import dynamicFetchingScheduler.server.http.controller.models.outputModels.ProviderOutputModel
+import dynamicFetchingScheduler.server.http.controller.HTTPUtils.addProvider
+import dynamicFetchingScheduler.server.http.controller.HTTPUtils.deleteProvider
+import dynamicFetchingScheduler.server.http.controller.HTTPUtils.getAllProviders
+import dynamicFetchingScheduler.server.http.controller.HTTPUtils.getProviderData
+import dynamicFetchingScheduler.server.http.controller.HTTPUtils.updateProvider
+import dynamicFetchingScheduler.server.http.controller.ProviderModels.toProviderResponse
+import dynamicFetchingScheduler.server.http.controller.ProviderModels.toProviderResponseList
+import dynamicFetchingScheduler.server.http.controller.ProviderModels.toProviderWithDataResponse
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
 import java.time.Duration
+import java.time.LocalDateTime
 import kotlin.test.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -20,7 +26,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @ExtendWith(SchemaManagementExtension::class)
 class ProviderControllerTest {
 
-	private val dummyProvider = ProviderInputModel(
+	private val dummyProvider = ProviderModels.SendModel(
 		name = "Test Provider 1",
 		url = "https://jsonplaceholder.typicode.com/todos/1",
 		frequency = Duration.ofSeconds(DEFAULT_PROVIDER_FREQUENCY).toString(),
@@ -31,202 +37,149 @@ class ProviderControllerTest {
 	@LocalServerPort
 	var port: Int = 8080
 
+	/**
+	 * This method is used to create a test client
+	 *
+	 * @return the test client
+	 */
+	private fun testClient() = WebTestClient
+		.bindToServer()
+		.baseUrl("http://localhost:$port/api")
+		.responseTimeout(Duration.ofHours(1))
+		.build()
+
 	@Test
 	fun `add provider`() {
-		val client = WebTestClient
-			.bindToServer()
-			.baseUrl("http://localhost:$port/api")
-			.responseTimeout(Duration.ofHours(1))
-			.build()
+		// arrange
+		val client = testClient()
+		val sut = dummyProvider
 
-		val sut = addProvider(client, dummyProvider)
-		val result = getAllProviders(client)
+		// act
+		val result = addProvider(client, sut).toProviderResponse().takeLastFetch()
+		val allProviders = getAllProviders(client).toProviderResponseList().takeLastFetch()
 
-		assert(result.isNotEmpty())
-		assert(result.contains(sut))
+		// assert
+		assert(allProviders.providers.isNotEmpty())
+		assert(allProviders.providers.contains(result))
+
+		cleanTest(result.id)
 	}
 
 	@Test
 	fun `update provider`() {
-		val client = WebTestClient
-			.bindToServer()
-			.baseUrl("http://localhost:$port/api")
-			.responseTimeout(Duration.ofHours(1))
-			.build()
+		// arrange
+		val client = testClient()
+		val sut = dummyProvider
 
-		val providerInput = ProviderInputModel(
-			name = "Test Update",
-			url = "https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day2.json",
-			frequency = Duration.ofSeconds(TEN_SECONDS).toString(),
-			isActive = true
-		)
+		val provider = addProvider(client, sut).toProviderResponse()
 
-		addProvider(client, providerInput)
+		val resultList1 = getAllProviders(client).toProviderResponseList()
 
-		val providers = getAllProviders(client)
-		val resultList1 = GSON.fromJson(providers, ProviderList::class.java)
-
-		assert(resultList1.providers.isNotEmpty())
-
-		val provider = resultList1.providers.first { it.name == providerInput.name && it.url == providerInput.url }
-
-		val updatedProviderModel = ProviderInputModel(
-			name = "Updated name",
-			url = "https://api.ipma.pt/open-data/forecast/meteorology/cities/daily/hp-daily-forecast-day1.json",
-			frequency = Duration.ofSeconds(TEN_SECONDS / 2).toString(),
-			isActive = false
-		)
-
+		// act
+		val updatedProviderModel = dummyProvider.copy(name = "Test Update")
 		updateProvider(client, provider.id, updatedProviderModel)
 
-		val resultList2 = GSON.fromJson(getAllProviders(client), ProviderList::class.java)
-
+		val resultList2 = getAllProviders(client).toProviderResponseList()
 		val updatedProvider = resultList2.providers.first { it.id == provider.id }
 
+		// assert
 		assert(resultList2.providers.contains(updatedProvider))
 		assertFalse(resultList2.providers.contains(provider))
 		assertNotEquals(resultList1, resultList2)
+
+		cleanTest(updatedProvider.id)
 	}
 
 	@Test
 	fun `delete provider`() {
-		val client = WebTestClient
-			.bindToServer()
-			.baseUrl("http://localhost:$port/api")
-			.responseTimeout(Duration.ofHours(1))
-			.build()
+		// arrange
+		val client = testClient()
+		val sut = dummyProvider
 
-		addProvider(client, dummyProvider)
-		addProvider(client, dummyProvider.copy(name = "Test Delete"))
+		addProvider(client, sut)
+		addProvider(client, sut.copy(name = "Test Delete"))
 
-		val resultList1 = GSON.fromJson(getAllProviders(client), ProviderList::class.java)
+		val resultList1 = getAllProviders(client).toProviderResponseList()
 
 		assert(resultList1.providers.isNotEmpty())
 
-		val providerToDelete = resultList1.providers.find { it.url == dummyProvider.url && it.name == "Test Delete" }
+		val providerToDelete = resultList1.providers.find { it.url == sut.url && it.name == "Test Delete" }
 		assertNotNull(providerToDelete)
+		requireNotNull(providerToDelete)
 
 		runBlocking {
 			// Wait for the provider to be fetched
 			delay(TEN_SECONDS / 2)
 		}
 
+		// act
 		deleteProvider(client, providerToDelete.id)
 
-		val resultList2 = GSON.fromJson(getAllProviders(client), ProviderList::class.java)
+		val resultList2 = getAllProviders(client).toProviderResponseList()
 
+		// assert
 		assert(resultList2.providers.size == resultList1.providers.size - 1)
 		assertFalse(resultList2.providers.contains(providerToDelete))
+
+		cleanTest(*resultList2.providers.map { it.id }.toIntArray())
 	}
 
 	@Test
-	fun `get all providers with their data`() {
+	fun `get all providers`() {
 		// arrange
-		val client = WebTestClient
-			.bindToServer()
-			.baseUrl("http://localhost:$port/api")
-			.responseTimeout(Duration.ofHours(1))
-			.build()
+		val client = testClient()
+		val sut1 = dummyProvider
+		val sut2 = dummyProvider.copy(name = "Test Provider 2")
+		addProvider(client, sut1).toProviderResponse()
+		addProvider(client, sut2).toProviderResponse()
 
 		// act
+		val result = getAllProviders(client).toProviderResponseList()
+
 		// assert
+		assert(result.providers.size == 2)
+		assert(result.providers.any { it.name == sut1.name })
+		assert(result.providers.any { it.name == sut2.name })
+
+		cleanTest(*result.providers.map { it.id }.toIntArray())
 	}
 
 	@Test
 	fun `get provider's info and data by url`() {
 		// arrange
-		val client = WebTestClient
-			.bindToServer()
-			.baseUrl("http://localhost:$port/api")
-			.responseTimeout(Duration.ofHours(1))
-			.build()
-
+		val client = testClient()
+		val sut = dummyProvider
+		val provider = addProvider(client, sut).toProviderResponse()
 		// act
+
+		val curTime = LocalDateTime.now()
+		runBlocking {
+			delay(THIRTY_SECONDS)
+		}
+		val result = getProviderData(client, provider.id, curTime).toProviderWithDataResponse()
+
 		// assert
+		assert(result.id == provider.id)
+		assert(result.dataList.size in 1..3)
+
+		cleanTest(provider.id)
+	}
+
+	/**
+	 * This method is used to clean up the test because it is not wrapped in a transaction
+	 *
+	 * @param ids The ids of the providers to clean up
+	 */
+	private fun cleanTest(vararg ids: Int) {
+		ids.forEach { id ->
+			deleteProvider(testClient(), id)
+		}
 	}
 
 	companion object {
 		private const val ONE_SECOND = 1000L
 		private const val TEN_SECONDS = 10 * ONE_SECOND
+		private const val THIRTY_SECONDS = 30 * ONE_SECOND
 		private const val DEFAULT_PROVIDER_FREQUENCY = 10L
-		private val GSON = Gson()
-
-		private data class ProviderList(
-			val providers: List<ProviderOutputModel>,
-			val size: Int
-		)
 	}
-
-	/**
-	 * This method is used to add a provider
-	 *
-	 * @param client the Client that allows to communicate with the server
-	 * @param providerInput the provider to add
-	 *
-	 * @return the response body of the request
-	 */
-	private fun addProvider(client: WebTestClient, providerInput: ProviderInputModel) =
-		client.post().uri("/provider")
-			.bodyValue(
-				providerInput
-			)
-			.exchange()
-			.expectStatus().is2xxSuccessful
-			.expectBody()
-			.returnResult()
-			.responseBody!!
-			.toString(Charsets.UTF_8)
-
-	/**
-	 * This method is used to update a provider
-	 *
-	 * @param client the Client that allows to communicate with the server
-	 * @param providerInput the provider to update
-	 *
-	 * @return the response body of the request
-	 */
-	private fun updateProvider(client: WebTestClient, providerId: Int, providerInput: ProviderInputModel) =
-		client.post().uri("/provider/$providerId")
-			.bodyValue(
-				providerInput
-			)
-			.exchange()
-			.expectStatus().is2xxSuccessful
-			.expectBody()
-			.returnResult()
-			.responseBody!!
-			.toString(Charsets.UTF_8)
-
-	/**
-	 * This method is used to delete a provider
-	 *
-	 * @param client the Client that allows to communicate with the server
-	 * @param providerId the ID of the provider to delete
-	 *
-	 * @return the response body of the request
-	 */
-	private fun deleteProvider(client: WebTestClient, providerId: Int) =
-		client.delete().uri("/provider/$providerId")
-			.exchange()
-			.expectStatus().is2xxSuccessful
-			.expectBody()
-			.returnResult()
-			.responseBody!!
-			.toString(Charsets.UTF_8)
-
-	/**
-	 * This method is used to get all providers
-	 *
-	 * @param client the Client that allows to communicate with the server
-	 *
-	 * @return the response body of the request
-	 */
-	private fun getAllProviders(client: WebTestClient) =
-		client.get().uri("/providers")
-			.exchange()
-			.expectStatus().is2xxSuccessful
-			.expectBody()
-			.returnResult()
-			.responseBody!!
-			.toString(Charsets.UTF_8)
 }

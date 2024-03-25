@@ -1,8 +1,8 @@
 version: "3.9"
 services:
   # postgres database
-  uag-db:
-    container_name: uag-db
+  db:
+    container_name: db
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile-db
@@ -13,14 +13,14 @@ services:
     ports:
       - "5432:5432"
   # Spring Application
-  uag-service:
-    container_name: uag-service
+  fetcher:
+    container_name: fetcher
     depends_on:
-      - uag-db
+      - db
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile-spring
     environment:
-      - DB_URL=jdbc:postgresql://uag-db:5432/postgres?user=postgres&password=postgres
-    expose:
-      - "8081:8080" # exposing a different port, so it's possible to run it both locally and in the container
+      - DB_URL=jdbc:postgresql://db:5432/postgres?user=postgres&password=postgres
+    ports:
+      - "8080:8080"
