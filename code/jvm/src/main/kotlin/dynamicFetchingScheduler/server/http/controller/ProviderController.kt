@@ -42,6 +42,10 @@ class ProviderController(
 	 */
 	@PostMapping(URIs.PROVIDER)
 	fun add(@RequestBody providerInputModel: ProviderInputModel): ResponseEntity<*> {
+		if (!providerInputModel.frequencyAndURLAreValid()) {
+			return ResponseEntity.badRequest().body("Invalid URL or frequency")
+		}
+
 		val providerInput = providerInputModel.toProviderInput()
 
 		return when (val result = providerService.addProvider(providerInput)) {
@@ -70,6 +74,10 @@ class ProviderController(
 	 */
 	@PostMapping(URIs.PROVIDER_WITH_ID)
 	fun update(@PathVariable id: Int, @RequestBody provider: ProviderInputModel): ResponseEntity<*> {
+		if (!provider.frequencyAndURLAreValid()) {
+			return ResponseEntity.badRequest().body("Invalid URL or frequency")
+		}
+
 		val newProvider = provider.toProviderInput()
 
 		return when (val result = providerService.updateProvider(id, newProvider)) {
@@ -148,6 +156,22 @@ class ProviderController(
 				ResponseEntity.badRequest().body(result.value.toString())
 			}
 		}
+	}
+
+	/**
+	 * Checks if the URL or the frequency is valid for a provider.
+	 * @return True if the URL and the frequency are valid, false otherwise
+	 */
+	private fun ProviderInputModel.frequencyAndURLAreValid(): Boolean {
+		if (!this.urlIsValid()) {
+			logger.error("Invalid URL: {}", this.url)
+			return false
+		}
+		if (!this.frequencyIsValid()) {
+			logger.error("Invalid frequency: {}", this.frequency)
+			return false
+		}
+		return true
 	}
 }
 

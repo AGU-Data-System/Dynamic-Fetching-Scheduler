@@ -32,6 +32,25 @@ object HTTPUtils {
 			.responseBody!!
 
 	/**
+	 * This method is used to fail adding a provider
+	 *
+	 * @param client the Client that allows to communicate with the server
+	 * @param sendModel the provider to add
+	 *
+	 * @return the response body of the failed request
+	 */
+	fun addProviderFail(client: WebTestClient, sendModel: SendModel) =
+		client.post().uri("/provider")
+			.bodyValue(
+				sendModel
+			)
+			.exchange()
+			.expectStatus().is4xxClientError
+			.expectBody()
+			.returnResult()
+			.responseBody!!
+
+	/**
 	 * This method is used to update a provider
 	 *
 	 * @param client the Client that allows to communicate with the server
@@ -46,6 +65,25 @@ object HTTPUtils {
 			)
 			.exchange()
 			.expectStatus().is2xxSuccessful
+			.expectBody()
+			.returnResult()
+			.responseBody!!
+
+	/**
+	 * This method is used to fail updating a provider
+	 *
+	 * @param client the Client that allows to communicate with the server
+	 * @param sendModel the provider to update
+	 *
+	 * @return the response body of the failed request
+	 */
+	fun updateProviderFail(client: WebTestClient, providerId: Int, sendModel: SendModel) =
+		client.post().uri("/provider/$providerId")
+			.bodyValue(
+				sendModel
+			)
+			.exchange()
+			.expectStatus().is4xxClientError
 			.expectBody()
 			.returnResult()
 			.responseBody!!
