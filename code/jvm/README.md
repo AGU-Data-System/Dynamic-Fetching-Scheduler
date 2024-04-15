@@ -130,6 +130,7 @@ To run the application, you need to have the following installed:
 
 - [Gradle](https://gradle.org/)
 - [Java 17](https://www.oracle.com/java/technologies/javase-jdk17-downloads.html)
+- [Docker](https://www.docker.com/)
 
 With the Gradle wrapper, you can build the application with the following command on the [jvm folder](./../jvm):
 
@@ -139,21 +140,6 @@ With the Gradle wrapper, you can build the application with the following comman
 
 Alternatively, it's possible to deploy the application using Docker, with the following steps:
 
-1. Build the application with the following command on the [jvm folder](./../jvm):
-
-    ```shell
-        ./gradlew build
-    ```
-
-2. Run the Gradle task to build the application JAR:
-
-    ```shell
-        ./gradlew extractUberJar
-    ```
-
-3. Build the Docker image with the following command on the [jvm folder](./../jvm):
-
-    ```shell
-        ./gradlew composeUp
-    ```
-
+```shell
+  docker compose up -d --build --force-recreate
+```
