@@ -1,10 +1,12 @@
 package dynamicFetchingScheduler.server.http.controller
 
 import dynamicFetchingScheduler.server.http.controller.HTTPUtils.addProvider
+import dynamicFetchingScheduler.server.http.controller.HTTPUtils.addProviderFail
 import dynamicFetchingScheduler.server.http.controller.HTTPUtils.deleteProvider
 import dynamicFetchingScheduler.server.http.controller.HTTPUtils.getAllProviders
 import dynamicFetchingScheduler.server.http.controller.HTTPUtils.getProviderData
 import dynamicFetchingScheduler.server.http.controller.HTTPUtils.updateProvider
+import dynamicFetchingScheduler.server.http.controller.HTTPUtils.updateProviderFail
 import dynamicFetchingScheduler.server.http.controller.ProviderModels.toProviderResponse
 import dynamicFetchingScheduler.server.http.controller.ProviderModels.toProviderResponseList
 import dynamicFetchingScheduler.server.http.controller.ProviderModels.toProviderWithDataResponse
@@ -21,6 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(SchemaManagementExtension::class)
@@ -66,6 +70,38 @@ class ProviderControllerTest {
 	}
 
 	@Test
+	fun `add provider should fail with invalid URL`() {
+		// arrange
+		val client = testClient()
+		val sut = dummyProvider.copy(url = "Error URL")
+
+		// act
+		addProviderFail(client, sut)
+		val allProviders = getAllProviders(client).toProviderResponseList().takeLastFetch()
+
+		// assert
+		assert(allProviders.providers.isEmpty())
+
+		cleanTest()
+	}
+
+	@Test
+	fun `add provider should fail with invalid frequency`() {
+		// arrange
+		val client = testClient()
+		val sut = dummyProvider.copy(frequency = "Error Frequency")
+
+		// act
+		addProviderFail(client, sut)
+		val allProviders = getAllProviders(client).toProviderResponseList().takeLastFetch()
+
+		// assert
+		assert(allProviders.providers.isEmpty())
+
+		cleanTest()
+	}
+
+	@Test
 	fun `update provider`() {
 		// arrange
 		val client = testClient()
@@ -87,7 +123,34 @@ class ProviderControllerTest {
 		assertFalse(resultList2.providers.contains(provider))
 		assertNotEquals(resultList1, resultList2)
 
-		cleanTest(updatedProvider.id)
+		cleanTest(provider.id)
+	}
+
+	@Test
+	fun `update provider should fail`() {
+		// arrange
+		val client = testClient()
+		val sut = dummyProvider
+
+		val provider = addProvider(client, sut).toProviderResponse()
+
+		val resultList1 = getAllProviders(client).toProviderResponseList()
+
+		// act
+		val updatedProviderModel = dummyProvider.copy(name = "Test Update", url = "Error URL", frequency = "Error Frequency")
+		updateProviderFail(client, provider.id, updatedProviderModel)
+
+		val resultList2 = getAllProviders(client).toProviderResponseList()
+		val updatedProvider = resultList2.providers.find { it.name == "Test Update" }
+
+		println(resultList2.providers)
+		println(provider)
+		// assert
+		assertNull(updatedProvider)
+		assert(resultList2.providers.contains(provider))
+		assertEquals(resultList1, resultList2)
+
+		cleanTest(provider.id)
 	}
 
 	@Test
@@ -140,6 +203,26 @@ class ProviderControllerTest {
 		assert(result.providers.size == 2)
 		assert(result.providers.any { it.name == sut1.name })
 		assert(result.providers.any { it.name == sut2.name })
+
+		cleanTest(*result.providers.map { it.id }.toIntArray())
+	}
+
+	@Test
+	fun `get all providers should return empty`() {
+		// arrange
+		val client = testClient()
+		val sut1 = dummyProvider.copy(url = "Error URL")
+		val sut2 = dummyProvider.copy(frequency = "Error Frequency")
+		val sut3 = dummyProvider.copy(url = "Error URL", frequency = "Error Frequency")
+		addProviderFail(client, sut1)
+		addProviderFail(client, sut2)
+		addProviderFail(client, sut3)
+
+		// act
+		val result = getAllProviders(client).toProviderResponseList()
+
+		// assert
+		assert(result.providers.isEmpty())
 
 		cleanTest(*result.providers.map { it.id }.toIntArray())
 	}

@@ -30,4 +30,28 @@ data class ProviderInputModel(
 		frequency = Duration.parse(frequency),
 		isActive = isActive
 	)
+
+	/**
+	 * Checks if the URL is valid
+	 *
+	 * @return Whether the URL is valid
+	 */
+	fun urlIsValid() = try {
+		URL(url)
+		true
+	} catch (e: Exception) {
+		false
+	}
+
+	/**
+	 * Checks if the frequency is valid
+	 *
+	 * @return Whether the frequency is valid
+	 */
+	fun frequencyIsValid() = try {
+		Duration.parse(frequency)
+		true
+	} catch (e: Exception) {
+		false
+	}
 }
