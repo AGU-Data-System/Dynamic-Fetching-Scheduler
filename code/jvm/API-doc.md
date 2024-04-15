@@ -135,7 +135,7 @@ Fetches all providers.
 
 Fetches a provider and its data for a given period.
 
-- **URL:** `/api/provider`
+- **URL:** `/api/provider/{id}`
 - **Method:** `GET`
 - **Path Variables:**
     - `id` - The unique id of the provider.
@@ -156,7 +156,7 @@ Fetches a provider and its data for a given period.
             - [Bad Request](#bad-request)
 - **Sample Call:**
     ```shell
-      curl -X GET "http://localhost:8080/api/provider?beginDate=2021-01-01"
+      curl -X GET "http://localhost:8080/api/provider/1?beginDate=2021-01-01"
     ```
 
 ## Input Models
