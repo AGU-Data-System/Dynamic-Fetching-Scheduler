@@ -156,7 +156,7 @@ Fetches a provider and its data for a given period.
             - [Bad Request](#bad-request)
 - **Sample Call:**
     ```shell
-      curl -X GET "http://localhost:8080/api/provider/1?beginDate=2021-01-01"
+      curl -X GET "http://localhost:8080/api/provider/1?beginDate=2021-01-01T00:00"
     ```
 
 ## Input Models
