@@ -2,6 +2,7 @@ package dynamicFetchingScheduler.server.repository.jdbi.mappers
 
 import dynamicFetchingScheduler.server.domain.RawData
 import java.sql.ResultSet
+import java.time.ZonedDateTime
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.statement.StatementContext
 
@@ -22,7 +23,7 @@ class RawDataMapper : RowMapper<RawData> {
 	override fun map(rs: ResultSet?, ctx: StatementContext?): RawData {
 		return RawData(
 			providerId = rs!!.getInt("provider_id"),
-			fetchTime = rs.getTimestamp("fetch_time").toLocalDateTime(),
+			fetchTime = rs.getTimestamp("fetch_time").let { ZonedDateTime.of(it.toLocalDateTime(), ZonedDateTime.now().zone) },
 			data = rs.getString("data")
 		)
 	}

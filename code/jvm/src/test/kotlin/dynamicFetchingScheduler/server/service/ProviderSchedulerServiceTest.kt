@@ -5,6 +5,7 @@ import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension.testWithTransactionManagerAndRollback
 import dynamicFetchingScheduler.utils.Success
 import java.net.URL
+import java.time.Clock
 import java.time.Duration
 import kotlin.test.assertContains
 import kotlinx.coroutines.delay
@@ -15,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(SchemaManagementExtension::class)
 class ProviderSchedulerServiceTest {
+
+	private val clock = Clock.systemUTC()
 
 	private val dummyProvider1 = ProviderInput(
 		name = "Test Provider 1",
@@ -35,8 +38,8 @@ class ProviderSchedulerServiceTest {
 		// arrange
 		val sut = dummyProvider1
 
-		val fetchDataService = FetchDataService(tm)
-		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
+		val fetchDataService = FetchDataService(tm, clock)
+		val schedulerService = ProviderSchedulerService(tm, fetchDataService, clock)
 		val service = ProviderService(tm, schedulerService)
 
 		// act
@@ -59,8 +62,8 @@ class ProviderSchedulerServiceTest {
 		// arrange
 		val sut = dummyProvider2
 
-		val fetchDataService = FetchDataService(tm)
-		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
+		val fetchDataService = FetchDataService(tm,clock)
+		val schedulerService = ProviderSchedulerService(tm, fetchDataService, clock)
 		val service = ProviderService(tm, schedulerService)
 
 		// act
@@ -82,8 +85,8 @@ class ProviderSchedulerServiceTest {
 		// arrange
 		val sut = dummyProvider1
 
-		val fetchDataService = FetchDataService(tm)
-		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
+		val fetchDataService = FetchDataService(tm, clock)
+		val schedulerService = ProviderSchedulerService(tm, fetchDataService, clock)
 		val service = ProviderService(tm, schedulerService)
 
 		val addedProvider = service.addProvider(sut)

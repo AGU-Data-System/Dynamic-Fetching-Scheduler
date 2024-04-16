@@ -3,8 +3,9 @@ package dynamicFetchingScheduler.server.service
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.repository.TransactionManager
 import jakarta.annotation.PostConstruct
+import java.time.Clock
 import java.time.Duration
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -18,7 +19,8 @@ import org.springframework.stereotype.Service
 @Service
 class ProviderSchedulerService(
 	private val transactionManager: TransactionManager,
-	private val fetchDataService: FetchDataService
+	private val fetchDataService: FetchDataService,
+	private val clock: Clock
 ) {
 	private val providerPoolSize = 10
 	private val scheduledTasks: MutableMap<Int, ScheduledFuture<*>> = ConcurrentHashMap()
@@ -84,9 +86,9 @@ class ProviderSchedulerService(
 	 * @param frequency The frequency to fetch the provider
 	 * @return The initial delay
 	 */
-	private fun calculateInitialDelay(lastFetched: LocalDateTime?, frequency: Duration): Long {
+	private fun calculateInitialDelay(lastFetched: ZonedDateTime?, frequency: Duration): Long {
 		lastFetched ?: return 0
-		val now = LocalDateTime.now()
+		val now = ZonedDateTime.now(clock)
 		val nextFetch = lastFetched + frequency
 		return if (now.isBefore(nextFetch)) Duration.between(now, nextFetch).toMillis() else 0
 	}

@@ -9,14 +9,17 @@ import dynamicFetchingScheduler.server.testUtils.successOrNull
 import dynamicFetchingScheduler.utils.Failure
 import dynamicFetchingScheduler.utils.Success
 import java.net.URL
+import java.time.Clock
 import java.time.Duration
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(SchemaManagementExtension::class)
 class ProviderServiceTest {
+
+	private val clock = Clock.systemUTC()
 
 	private val dummyProvider1 = ProviderInput(
 		name = "Test Provider 1",
@@ -36,8 +39,8 @@ class ProviderServiceTest {
 	fun `add new provider`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
 		val sut = dummyProvider1
-		val fetchDataService = FetchDataService(tm)
-		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
+		val fetchDataService = FetchDataService(tm, clock)
+		val schedulerService = ProviderSchedulerService(tm, fetchDataService, clock)
 		val service = ProviderService(tm, schedulerService)
 
 		// act
@@ -57,8 +60,8 @@ class ProviderServiceTest {
 	fun `update provider`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
 		val sut = dummyProvider1
-		val fetchDataService = FetchDataService(tm)
-		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
+		val fetchDataService = FetchDataService(tm, clock)
+		val schedulerService = ProviderSchedulerService(tm, fetchDataService, clock)
 		val service = ProviderService(tm, schedulerService)
 
 		// act
@@ -77,8 +80,8 @@ class ProviderServiceTest {
 	@Test
 	fun `update un-existing provider should fail`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
-		val fetchDataService = FetchDataService(tm)
-		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
+		val fetchDataService = FetchDataService(tm, clock)
+		val schedulerService = ProviderSchedulerService(tm, fetchDataService, clock)
 		val service = ProviderService(tm, schedulerService)
 
 		// act
@@ -94,8 +97,8 @@ class ProviderServiceTest {
 	fun `delete provider`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
 		val sut = dummyProvider1
-		val fetchDataService = FetchDataService(tm)
-		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
+		val fetchDataService = FetchDataService(tm, clock)
+		val schedulerService = ProviderSchedulerService(tm, fetchDataService, clock)
 		val service = ProviderService(tm, schedulerService)
 
 		// act
@@ -111,8 +114,8 @@ class ProviderServiceTest {
 	@Test
 	fun `delete un-existing provider should pass`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
-		val fetchDataService = FetchDataService(tm)
-		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
+		val fetchDataService = FetchDataService(tm, clock)
+		val schedulerService = ProviderSchedulerService(tm, fetchDataService, clock)
 		val service = ProviderService(tm, schedulerService)
 
 		// act
@@ -127,8 +130,8 @@ class ProviderServiceTest {
 		// arrange
 		val sut1 = dummyProvider1
 		val sut2 = dummyProvider2
-		val fetchDataService = FetchDataService(tm)
-		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
+		val fetchDataService = FetchDataService(tm, clock)
+		val schedulerService = ProviderSchedulerService(tm, fetchDataService, clock)
 		val service = ProviderService(tm, schedulerService)
 
 		// act
@@ -148,8 +151,8 @@ class ProviderServiceTest {
 	fun `get provider`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
 		val sut = dummyProvider1
-		val fetchDataService = FetchDataService(tm)
-		val schedulerService = ProviderSchedulerService(tm, fetchDataService)
+		val fetchDataService = FetchDataService(tm, clock)
+		val schedulerService = ProviderSchedulerService(tm, fetchDataService, clock)
 		val service = ProviderService(tm, schedulerService)
 
 		// act
@@ -158,8 +161,8 @@ class ProviderServiceTest {
 		val result =
 			service.getProviderWithData(
 				provider.value.provider.id,
-				LocalDateTime.now(),
-				LocalDateTime.now(),
+				ZonedDateTime.now(),
+				ZonedDateTime.now(),
 				PAGE_NR,
 				PAGE_SIZE
 			)

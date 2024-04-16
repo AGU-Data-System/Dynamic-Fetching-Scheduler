@@ -1,6 +1,8 @@
 package dynamicFetchingScheduler.server
 
 import dynamicFetchingScheduler.server.repository.configureWithAppRequirements
+import java.time.Clock
+import java.time.ZoneId
 import org.jdbi.v3.core.Jdbi
 import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -26,6 +28,12 @@ class DynamicFetchingSchedulerApplication {
 	 */
 	@Bean
 	fun restTemplate() = RestTemplate()
+
+	/**
+	 * Clock
+	 */
+	@Bean
+	fun clock() = Clock.system(ZoneId.of("Portugal"))
 
 }
 

@@ -4,14 +4,16 @@ import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension.testWithTransactionManagerAndRollback
 import java.net.URL
+import java.time.Clock
 import java.time.Duration
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(SchemaManagementExtension::class)
 class FetchDataServiceTest {
+	private val clock = Clock.systemUTC()
 
 	private val dummyProvider = ProviderInput(
 		name = "Test Provider 1",
@@ -23,9 +25,9 @@ class FetchDataServiceTest {
 	@Test
 	fun `fetch and save data`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
-		val service = FetchDataService(tm)
+		val service = FetchDataService(tm, clock)
 		val sut = dummyProvider
-		val beginTime = LocalDateTime.now()
+		val beginTime = ZonedDateTime.now()
 		val provider = tm.run {
 			return@run it.providerRepository.addProvider(sut)
 		}
@@ -39,7 +41,7 @@ class FetchDataServiceTest {
 			it.providerRepository.findProviderDataWithinDateRange(
 				provider.id,
 				beginTime,
-				LocalDateTime.now(),
+				ZonedDateTime.now(),
 				PAGE_NR,
 				PAGE_SIZE
 			)
@@ -53,14 +55,14 @@ class FetchDataServiceTest {
 	@Test
 	fun `fetch and save data with error shouldn't save data`() = testWithTransactionManagerAndRollback { tm ->
 		// arrange
-		val service = FetchDataService(tm)
+		val service = FetchDataService(tm, clock)
 		val sut = dummyProvider.copy(url = URL("https://dummyproject.org/"))
-		val beginTime = LocalDateTime.now()
+		val beginTime = ZonedDateTime.now()
 		val provider = tm.run {
 			it.providerRepository.addProvider(sut)
 		}
 		Thread.sleep(TEN_SECONDS)
-		val endTime = LocalDateTime.now()
+		val endTime = ZonedDateTime.now()
 		assertNotNull(provider)
 
 		// act

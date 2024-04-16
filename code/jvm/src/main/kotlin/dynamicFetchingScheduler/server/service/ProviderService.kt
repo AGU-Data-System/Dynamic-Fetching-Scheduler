@@ -10,7 +10,7 @@ import dynamicFetchingScheduler.server.service.errors.UpdateProviderError
 import dynamicFetchingScheduler.utils.PaginationResult
 import dynamicFetchingScheduler.utils.failure
 import dynamicFetchingScheduler.utils.success
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import kotlin.math.ceil
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -117,8 +117,8 @@ class ProviderService(
 	 */
 	fun getProviderWithData(
 		id: Int,
-		beginDate: LocalDateTime,
-		endDate: LocalDateTime,
+		beginDate: ZonedDateTime,
+		endDate: ZonedDateTime,
 		page: Int,
 		size: Int
 	): GetProviderResult {

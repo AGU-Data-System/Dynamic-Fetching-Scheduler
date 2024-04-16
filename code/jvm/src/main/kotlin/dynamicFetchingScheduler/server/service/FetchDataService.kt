@@ -7,7 +7,8 @@ import java.net.URL
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.time.LocalDateTime
+import java.time.Clock
+import java.time.ZonedDateTime
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -17,7 +18,8 @@ import org.springframework.stereotype.Service
  */
 @Service
 class FetchDataService(
-	private val transactionManager: TransactionManager
+	private val transactionManager: TransactionManager,
+	private val clock : Clock
 ) {
 	/**
 	 * Fetches the data from the provider and saves it to the database.
@@ -32,7 +34,8 @@ class FetchDataService(
 		if (response.statusCode != HttpStatus.OK.value()) return
 		transactionManager.run {
 			val provider = it.providerRepository.find(providerId) ?: return@run
-			val curTime = LocalDateTime.now()
+			println(clock.zone)
+			val curTime = ZonedDateTime.now(clock.zone)
 			it.providerRepository.updateLastFetch(providerId, curTime)
 			it.rawDataRepository.saveRawData(RawData(provider.id, curTime, response.body))
 			logger.info("Saved data from provider on Database with url: {} and id: {}", providerURL, providerId)
