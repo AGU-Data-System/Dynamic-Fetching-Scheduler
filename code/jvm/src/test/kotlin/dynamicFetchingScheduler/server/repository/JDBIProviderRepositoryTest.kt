@@ -6,7 +6,7 @@ import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension.testWithHandleAndRollback
 import java.net.URL
 import java.time.Duration
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -55,7 +55,7 @@ class JDBIProviderRepositoryTest {
 
 		// act
 		val addedProvider = repo.addProvider(sut)
-		val curTime = LocalDateTime.now()
+		val curTime = ZonedDateTime.now()
 		repo.updateLastFetch(addedProvider.id, curTime)
 		val result = repo.find(addedProvider.id)
 
@@ -204,12 +204,12 @@ class JDBIProviderRepositoryTest {
 		// arrange
 		val repo = JDBIProviderRepository(handle)
 		val sut = dummyProvider1
-		val beginTime = LocalDateTime.now()
+		val beginTime = ZonedDateTime.now()
 
 		// act
 		val addedProvider = repo.addProvider(sut)
 		Thread.sleep(SEVENTEEN_SECONDS)
-		val endTime = LocalDateTime.now()
+		val endTime = ZonedDateTime.now()
 		val result = repo.findProviderDataWithinDateRange(addedProvider.id, beginTime, endTime, PAGE_NR, PAGE_SIZE)
 
 		// assert

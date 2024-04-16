@@ -4,6 +4,8 @@ import dynamicFetchingScheduler.server.domain.Provider
 import java.net.URL
 import java.sql.ResultSet
 import java.time.Duration
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.statement.StatementContext
 
@@ -26,7 +28,7 @@ class ProviderMapper : RowMapper<Provider> {
 			url = URL(rs.getString("url")),
 			frequency = Duration.ofSeconds(rs.getLong("frequency")),
 			isActive = rs.getBoolean("is_active"),
-			lastFetch = rs.getTimestamp("last_fetched")?.toLocalDateTime()
+			lastFetch = rs.getTimestamp("last_fetched").let { ZonedDateTime.of(it.toLocalDateTime(), ZoneId.of("Portugal")) }
 		)
 	}
 }

@@ -1,6 +1,6 @@
 package dynamicFetchingScheduler.server.domain
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 /**
  * Represents the raw data fetched from a provider.
@@ -11,6 +11,6 @@ import java.time.LocalDateTime
  */
 data class RawData(
 	val providerId: Int,
-	val fetchTime: LocalDateTime,
+	val fetchTime: ZonedDateTime,
 	val data: String
 )

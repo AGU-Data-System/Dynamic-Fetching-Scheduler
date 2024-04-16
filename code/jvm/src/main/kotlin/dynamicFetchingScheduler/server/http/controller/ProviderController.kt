@@ -9,7 +9,7 @@ import dynamicFetchingScheduler.server.http.controller.models.outputModels.Provi
 import dynamicFetchingScheduler.server.service.ProviderService
 import dynamicFetchingScheduler.utils.Failure
 import dynamicFetchingScheduler.utils.Success
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.format.annotation.DateTimeFormat
@@ -134,12 +134,12 @@ class ProviderController(
 	@GetMapping(URIs.PROVIDER_WITH_ID)
 	fun providerWithData(
 		@PathVariable id: Int,
-		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) beginDate: LocalDateTime,
-		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endDate: Optional<LocalDateTime>,
+		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) beginDate: ZonedDateTime,
+		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) endDate: Optional<ZonedDateTime>,
 		@RequestParam(defaultValue = "0") page: Int,
 		@RequestParam(defaultValue = "10") size: Int
 	): ResponseEntity<*> {
-		return when (val result = providerService.getProviderWithData(id, beginDate, endDate.orElse(LocalDateTime.now()), page, size)) {
+		return when (val result = providerService.getProviderWithData(id, beginDate, endDate.orElse(ZonedDateTime.now()), page, size)) {
 			is Success -> {
 				logger.info("Provider fetched successfully")
 				val provider = result.value.provider

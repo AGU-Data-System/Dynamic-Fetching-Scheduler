@@ -3,7 +3,7 @@ package dynamicFetchingScheduler.server.repository.provider
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.domain.RawData
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import org.slf4j.LoggerFactory
@@ -40,7 +40,7 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 * @param id The id of the provider to update
 	 * @param lastFetched The time to update the field to
 	 */
-	override fun updateLastFetch(id: Int, lastFetched: LocalDateTime) {
+	override fun updateLastFetch(id: Int, lastFetched: ZonedDateTime) {
 
 		logger.info("Updating last fetch for provider: {}", id)
 
@@ -200,7 +200,7 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 * @param page The page number to get
 	 * @param size The size of each page
 	 */
-	override fun findProviderDataWithinDateRange(providerId: Int, beginDate: LocalDateTime, endDate: LocalDateTime, page: Int, size: Int): List<RawData> {
+	override fun findProviderDataWithinDateRange(providerId: Int, beginDate: ZonedDateTime, endDate: ZonedDateTime, page: Int, size: Int): List<RawData> {
 		val offset = page * size
 
 		val dataQuery = """
@@ -213,8 +213,8 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 
 		return handle.createQuery(dataQuery)
 			.bind("providerId", providerId)
-			.bind("beginDate", beginDate)
-			.bind("endDate", endDate)
+			.bind("beginDate", beginDate.toLocalDateTime())
+			.bind("endDate", endDate.toLocalDateTime())
 			.bind("size", size)
 			.bind("offset", offset)
 			.mapTo<RawData>()
@@ -251,8 +251,8 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 */
 	override fun countTotalProviderDataWithinDateRange(
 		providerId: Int,
-		beginDate: LocalDateTime,
-		endDate: LocalDateTime
+		beginDate: ZonedDateTime,
+		endDate: ZonedDateTime
 	): Int {
 		val countQuery = """
 			SELECT COUNT(*)

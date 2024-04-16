@@ -3,7 +3,7 @@ package dynamicFetchingScheduler.server.repository.provider
 import dynamicFetchingScheduler.server.domain.Provider
 import dynamicFetchingScheduler.server.domain.ProviderInput
 import dynamicFetchingScheduler.server.domain.RawData
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 /**
  * Repository for the Provider operations.
@@ -23,7 +23,7 @@ interface ProviderRepository {
 	 * @param id The id of the provider to update
 	 * @param lastFetched The time to update the field to
 	 */
-	fun updateLastFetch(id: Int, lastFetched: LocalDateTime)
+	fun updateLastFetch(id: Int, lastFetched: ZonedDateTime)
 
 	/**
 	 * Add a provider to the database.
@@ -71,7 +71,7 @@ interface ProviderRepository {
 	 *
 	 * @return The total number of data
 	 */
-	fun countTotalProviderDataWithinDateRange(providerId: Int, beginDate: LocalDateTime, endDate: LocalDateTime): Int
+	fun countTotalProviderDataWithinDateRange(providerId: Int, beginDate: ZonedDateTime, endDate: ZonedDateTime): Int
 
 	/**
 	 * Get all providers from the database.
@@ -93,8 +93,8 @@ interface ProviderRepository {
 	 */
 	fun findProviderDataWithinDateRange(
 		providerId: Int,
-		beginDate: LocalDateTime,
-		endDate: LocalDateTime,
+		beginDate: ZonedDateTime,
+		endDate: ZonedDateTime,
 		page: Int,
 		size: Int
 	): List<RawData>

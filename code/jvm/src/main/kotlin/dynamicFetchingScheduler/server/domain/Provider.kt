@@ -2,7 +2,7 @@ package dynamicFetchingScheduler.server.domain
 
 import java.net.URL
 import java.time.Duration
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 /**
  * Represents a provider and its configuration.
@@ -20,9 +20,9 @@ data class Provider(
 	val url: URL,
 	val frequency: Duration,
 	val isActive: Boolean,
-	val lastFetch: LocalDateTime?
+	val lastFetch: ZonedDateTime?
 ) {
-	constructor(id: Int, providerInput: ProviderInput, lastFetch: LocalDateTime? = null) : this(
+	constructor(id: Int, providerInput: ProviderInput, lastFetch: ZonedDateTime? = null) : this(
 		id = id,
 		name = providerInput.name,
 		url = providerInput.url,

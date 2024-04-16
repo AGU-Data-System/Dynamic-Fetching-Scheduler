@@ -8,7 +8,7 @@ import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension.testWithHandleAndRollback
 import java.net.URL
 import java.time.Duration
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -39,16 +39,16 @@ class JDBIRawDataRepositoryTest {
 		// act
 		val providerSut = providerRepo.find(provider.id)
 		assertNotNull(providerSut)
-		val beginTime = LocalDateTime.now()
+		val beginTime = ZonedDateTime.now()
 		Thread.sleep(ONE_SECOND)
-		val rawDataSut = RawData(providerSut!!.id, LocalDateTime.now(), jsonData)
+		val rawDataSut = RawData(providerSut!!.id, ZonedDateTime.now(), jsonData)
 		rawDataRepo.saveRawData(rawDataSut)
 
 		val result =
 			providerRepo.findProviderDataWithinDateRange(
 				providerSut.id,
 				beginTime,
-				LocalDateTime.now(),
+				ZonedDateTime.now(),
 				PAGE_NR,
 				PAGE_SIZE
 			)
@@ -57,7 +57,7 @@ class JDBIRawDataRepositoryTest {
 		assertEquals(1, result.size)
 		assertEquals(jsonData, result.first().data)
 		assertEquals(providerSut.id, result.first().providerId)
-		assertTrue { result.first().fetchTime.isBefore(LocalDateTime.now()) }
+		assertTrue { result.first().fetchTime.isBefore(ZonedDateTime.now()) }
 	}
 
 	@Test
@@ -72,7 +72,7 @@ class JDBIRawDataRepositoryTest {
 		// act
 		val providerSut = providerRepo.find(provider.id)
 		assertNotNull(providerSut)
-		val rawDataSut = RawData(providerSut!!.id, LocalDateTime.now(), stringData)
+		val rawDataSut = RawData(providerSut!!.id, ZonedDateTime.now(), stringData)
 
 		// assert
 		assertFailsWith<UnableToExecuteStatementException> {

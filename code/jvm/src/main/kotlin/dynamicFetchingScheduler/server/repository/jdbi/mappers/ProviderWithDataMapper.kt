@@ -6,6 +6,7 @@ import dynamicFetchingScheduler.server.domain.RawData
 import java.net.URL
 import java.sql.ResultSet
 import java.time.Duration
+import java.time.ZonedDateTime
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.statement.StatementContext
 
@@ -30,11 +31,11 @@ class ProviderWithDataMapper : RowMapper<ProviderWithData> {
 			url = URL(rs.getString("url")),
 			frequency = Duration.ofSeconds(rs.getLong("frequency")),
 			isActive = rs.getBoolean("is_active"),
-			lastFetch = rs.getTimestamp("last_fetched")?.toLocalDateTime()
+			lastFetch = rs.getTimestamp("last_fetched").let { ZonedDateTime.of(it.toLocalDateTime(), ZonedDateTime.now().zone) }
 		)
 		val rawData = mutableListOf<RawData>()
 		do {
-			val rawDataTimestamp = rs.getTimestamp("fetch_time")?.toLocalDateTime() ?: break
+			val rawDataTimestamp = rs.getTimestamp("fetch_time").let { ZonedDateTime.of(it.toLocalDateTime(), ZonedDateTime.now().zone) } ?: break
 			val data = rs.getString("data")
 			rawData.add(RawData(providerId, rawDataTimestamp, data))
 		} while (rs.next())
