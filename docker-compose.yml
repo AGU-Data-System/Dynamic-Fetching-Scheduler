@@ -1,4 +1,5 @@
 version: "3.9"
+name: scheduling-fetcher
 services:
   # postgres database
   db:
@@ -10,6 +11,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
+      - TZ=Europe/Lisbon  # Timezone set here for flexibility
     ports:
       - "5432:5432"
   # Spring Application
@@ -21,6 +23,8 @@ services:
       context: .
       dockerfile: dockerfiles/Dockerfile-spring
     environment:
+      - TZ=Europe/Lisbon  # Ensure the app uses the same timezone as the DB
       - DB_URL=jdbc:postgresql://db:5432/postgres?user=postgres&password=postgres
     ports:
       - "8080:8080"
+    entrypoint: ["/bin/sh", "-c", "apk add --no-cache tzdata && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && java -jar /usr/app/dynamicFetchingScheduler-0.0.1-SNAPSHOT.jar"]
