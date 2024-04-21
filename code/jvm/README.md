@@ -34,7 +34,7 @@ data with a given frequency, the data is then stored in the system and can be re
 
 The following diagram holds the Entity-Relationship model for the information managed by the system.
 
-![ER Diagram](../../docs/ER_Diagram_fetcher.drawio.png)
+![ER Diagram](../../docs/ER_Diagram_fetcher-ER.png)
 
 ### Physical Model
 
@@ -50,7 +50,7 @@ testing purposes;
 
 ## Application Architecture
 
-![Application architecture](../../docs/Diagram-Dynamic-fetcher.drawio.svg)
+![Application Architecture](../../docs/ER_Diagram_fetcher-Dynamic-fetcher.png)
 
 The application is structured as follows:
 
@@ -138,7 +138,7 @@ With the Gradle wrapper, you can build the application with the following comman
 ./gradlew build
 ```
 
-Alternatively, it's possible to deploy the application using Docker, with the following steps:
+Alternatively, it's possible to deploy the application using Docker and not Java, with the following steps:
 
 ```shell
   docker compose up -d --build --force-recreate

@@ -15,6 +15,7 @@
     - [Provider Input Model](#provider-input-model)
 - [Output Models](#output-models)
     - [Simple Message](#simple-message)
+    - [Add Provider Output Model](#add-provider-output-model)
     - [Provider Output Model](#provider-output-model)
     - [Provider Raw Data Output Model](#provider-raw-data-output-model)
     - [Provider With Data Output Model](#provider-with-data-output-model)
@@ -57,7 +58,7 @@ Adds a new provider.
 - **Success Response:**
     - **Content:** 
         - `application/json`    
-            - [Provider Output Model](#provider-output-model)
+            - [Add Provider Output Model](#add-provider-output-model)
 - **Error Response:**
     - **Content:** 
         - `application/json`
@@ -195,6 +196,19 @@ Fetches a provider and its data for a given period.
   }
   ```
   
+### Add Provider Output Model
+
+- **Type:** `application/json`
+- **Attributes:**
+    - **Required:**
+        - `id` - The unique id of the provider.
+- **Example:**
+- ```json
+  {
+    "id": 1
+  }
+  ```
+  
 ### Provider Output Model
 
 - **Type:** `application/json`
@@ -203,7 +217,6 @@ Fetches a provider and its data for a given period.
         - `id` - The unique id of the provider.
         - `name` - The name of the provider.
         - `url` - The endpoint of the provider to fetch data from.
-        - `isActive` - The status of the provider.
         - `frequency` - The frequency to fetch the data from the provider.
         - `isActive` - The status of the provider.
         - `lastFetch` - The last time the data was fetched from the provider. If it's null, no data was fetched yet.

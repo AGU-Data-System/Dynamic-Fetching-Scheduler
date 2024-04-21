@@ -3,6 +3,7 @@ package dynamicFetchingScheduler.server.http.controller
 import dynamicFetchingScheduler.server.domain.ProviderWithData
 import dynamicFetchingScheduler.server.http.URIs
 import dynamicFetchingScheduler.server.http.controller.models.inputModels.ProviderInputModel
+import dynamicFetchingScheduler.server.http.controller.models.outputModels.AddProviderOutputModel
 import dynamicFetchingScheduler.server.http.controller.models.outputModels.ProviderListOutputModel
 import dynamicFetchingScheduler.server.http.controller.models.outputModels.ProviderOutputModel
 import dynamicFetchingScheduler.server.http.controller.models.outputModels.ProviderWithDataOutputModel
@@ -56,7 +57,7 @@ class ProviderController(
 					result.value.provider,
 					if (result.value.isScheduled) "active" else "inactive"
 				)
-				ResponseEntity.created(URIs.provider(result.value.provider.id)).body(ProviderOutputModel(result.value.provider))
+				ResponseEntity.created(URIs.provider(result.value.provider.id)).body(AddProviderOutputModel(result.value.provider.id))
 			}
 
 			is Failure -> {
