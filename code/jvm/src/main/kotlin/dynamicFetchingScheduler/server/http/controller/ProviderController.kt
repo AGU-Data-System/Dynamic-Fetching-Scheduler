@@ -57,7 +57,8 @@ class ProviderController(
 					result.value.provider,
 					if (result.value.isScheduled) "active" else "inactive"
 				)
-				ResponseEntity.created(URIs.provider(result.value.provider.id)).body(AddProviderOutputModel(result.value.provider.id))
+				ResponseEntity.created(URIs.provider(result.value.provider.id))
+					.body(AddProviderOutputModel(result.value.provider.id))
 			}
 
 			is Failure -> {
@@ -140,7 +141,8 @@ class ProviderController(
 		@RequestParam(defaultValue = "0") page: Int,
 		@RequestParam(defaultValue = "10") size: Int
 	): ResponseEntity<*> {
-		return when (val result = providerService.getProviderWithData(id, beginDate, endDate.orElse(LocalDateTime.now()), page, size)) {
+		return when (val result =
+			providerService.getProviderWithData(id, beginDate, endDate.orElse(LocalDateTime.now()), page, size)) {
 			is Success -> {
 				logger.info("Provider fetched successfully")
 				val provider = result.value.provider
@@ -148,7 +150,12 @@ class ProviderController(
 				val providerWithData = ProviderWithData(provider, pagedData.items)
 				ResponseEntity
 					.ok()
-					.addPaginationHeaders(pagedData.totalItems, pagedData.totalPages, pagedData.currentPage, pagedData.items.size)
+					.addPaginationHeaders(
+						pagedData.totalItems,
+						pagedData.totalPages,
+						pagedData.currentPage,
+						pagedData.items.size
+					)
 					.body(ProviderWithDataOutputModel(providerWithData))
 			}
 

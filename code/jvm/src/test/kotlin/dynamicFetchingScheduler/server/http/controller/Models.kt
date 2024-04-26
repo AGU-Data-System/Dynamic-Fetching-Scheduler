@@ -42,50 +42,7 @@ object ProviderModels {
 		val frequency: String,
 		val isActive: Boolean,
 		val lastFetch: String?
-	) {
-		/**
-		 * Converts the response model to a provider without the last fetch time.
-		 *
-		 * @return The provider without the last fetch time
-		 * @see ProviderWOLastFetch
-		 * @see ProviderResponse
-		 */
-		data class ProviderWOLastFetch(
-			val id: Int,
-			val name: String,
-			val url: String,
-			val frequency: String,
-			val isActive: Boolean
-		)
-
-		/**
-		 * Converts the response model to a provider without the last fetch time.
-		 *
-		 * @return The provider without the last fetch time
-		 * @see ProviderWOLastFetch
-		 * @see ProviderResponse
-		 */
-		fun takeLastFetch() = ProviderWOLastFetch(id, name, url, frequency, isActive)
-
-	}
-
-	/**
-	 * Converts a byte array to a provider response.
-	 *
-	 * @return The provider response
-	 */
-	fun ByteArray.toProviderResponse(): ProviderResponse {
-		val objectMapper = jacksonObjectMapper()
-		val jsonNode = objectMapper.readTree(this)
-		return ProviderResponse(
-			id = jsonNode.get("id").asInt(),
-			name = jsonNode.get("name").asText(),
-			url = jsonNode.get("url").asText(),
-			frequency = jsonNode.get("frequency").asText(),
-			isActive = jsonNode.get("isActive").asBoolean(),
-			lastFetch = jsonNode.get("lastFetch").asTextOrNull()
-		)
-	}
+	)
 
 	/**
 	 * Model received when getting a list of providers.
@@ -96,26 +53,7 @@ object ProviderModels {
 	data class ProviderResponseList(
 		val providers: List<ProviderResponse>,
 		val size: Int = providers.size
-	) {
-
-		/**
-		 * Model List of providers without the last fetch time.
-		 */
-		data class ProviderListWOLastFetch(
-			val providers: List<ProviderResponse.ProviderWOLastFetch>,
-			val size: Int = providers.size
-		)
-
-		/**
-		 * Converts the response model to a list of providers without the last fetch time.
-		 *
-		 * @return The list of providers without the last fetch time
-		 * @see ProviderResponse.ProviderWOLastFetch
-		 * @see ProviderResponseList
-		 */
-		fun takeLastFetch() = ProviderListWOLastFetch(providers.map { it.takeLastFetch() })
-
-	}
+	)
 
 	/**
 	 * Converts a byte array to a provider list response.
@@ -204,6 +142,17 @@ object ProviderModels {
 				data.toProviderDataResponse()
 			}
 		)
+	}
+
+	/**
+	 * Getter for provider id from a byte array.
+	 *
+	 * @return The provider id
+	 */
+	fun ByteArray.toProviderId(): Int {
+		val objectMapper = jacksonObjectMapper()
+		val jsonNode = objectMapper.readTree(this)
+		return jsonNode.get("id").asInt()
 	}
 
 	/**

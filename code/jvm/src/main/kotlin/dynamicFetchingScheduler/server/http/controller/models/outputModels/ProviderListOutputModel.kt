@@ -10,7 +10,7 @@ import dynamicFetchingScheduler.server.domain.Provider
  */
 data class ProviderListOutputModel(
 	val providers: List<ProviderOutputModel>,
-	val size :Int = providers.size
+	val size: Int = providers.size
 ) {
 
 	constructor(providers: List<Provider>) : this(

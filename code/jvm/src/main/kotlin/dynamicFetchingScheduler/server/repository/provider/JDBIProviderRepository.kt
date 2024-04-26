@@ -128,20 +128,27 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 * @param id The url of the provider to delete.
 	 */
 	override fun deleteProvider(id: Int) {
+		handle.useTransaction<RuntimeException> { conn ->
+			logger.info("Attempting to delete all data from raw_data for provider with id: {}", id)
 
-		logger.info("Deleting provider data from provider with id: {}", id)
+			// Delete entries from raw_data table
+			val rawDataDeletedCount = conn.createUpdate("DELETE FROM raw_data WHERE provider_id = :id")
+				.bind("id", id)
+				.execute()
 
-		handle.createUpdate("DELETE FROM raw_data WHERE provider_id = :id")
-			.bind("id", id)
-			.execute()
+			logger.info("{} entries deleted from raw_data for provider id {}", rawDataDeletedCount, id)
 
-		logger.info("Deleting provider with id: {}", id)
+			// Attempt to delete the provider
+			val providerDeletedCount = conn.createUpdate("DELETE FROM provider WHERE id = :id")
+				.bind("id", id)
+				.execute()
 
-		handle.createUpdate("DELETE FROM provider WHERE id = :id")
-			.bind("id", id)
-			.execute()
-
-		logger.info("Provider deleted and all its data")
+			if (providerDeletedCount == 1) {
+				logger.info("Successfully deleted provider with id {}", id)
+			} else {
+				logger.warn("No provider found with id {}, no deletion performed", id)
+			}
+		}
 	}
 
 	/**
@@ -178,11 +185,13 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	override fun allProviders(): List<Provider> {
 		logger.info("Fetching all providers")
 
-		val providers = handle.createQuery("""
+		val providers = handle.createQuery(
+			"""
 			SELECT id, name, url, extract(epoch from frequency) as frequency, is_active, last_fetched
 			FROM provider
 			ORDER BY id
-    	""".trimIndent())
+    	""".trimIndent()
+		)
 			.mapTo<Provider>()
 			.list()
 
@@ -200,7 +209,13 @@ class JDBIProviderRepository(private val handle: Handle) : ProviderRepository {
 	 * @param page The page number to get
 	 * @param size The size of each page
 	 */
-	override fun findProviderDataWithinDateRange(providerId: Int, beginDate: LocalDateTime, endDate: LocalDateTime, page: Int, size: Int): List<RawData> {
+	override fun findProviderDataWithinDateRange(
+		providerId: Int,
+		beginDate: LocalDateTime,
+		endDate: LocalDateTime,
+		page: Int,
+		size: Int
+	): List<RawData> {
 		val offset = page * size
 
 		val dataQuery = """

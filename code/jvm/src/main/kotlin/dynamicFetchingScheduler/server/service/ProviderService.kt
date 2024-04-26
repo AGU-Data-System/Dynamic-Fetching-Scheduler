@@ -126,14 +126,28 @@ class ProviderService(
 			val provider = it.providerRepository.find(id) ?: return@run failure(GetProviderError.ProviderNotFound)
 			logger.info("Provider found with id: {}", id)
 
-			val dataList = it.providerRepository.findProviderDataWithinDateRange(provider.id, beginDate, endDate, page, size)
+			val dataList =
+				it.providerRepository.findProviderDataWithinDateRange(provider.id, beginDate, endDate, page, size)
 			logger.info("Fetched data for provider with id: {} between: {} and: {}", id, beginDate, endDate)
 
-			val totalItems = it.providerRepository.countTotalProviderDataWithinDateRange(provider.id, beginDate, endDate)
-			logger.info("Total items for provider with id: {} between: {} and: {} is: {}", id, beginDate, endDate, totalItems)
+			val totalItems =
+				it.providerRepository.countTotalProviderDataWithinDateRange(provider.id, beginDate, endDate)
+			logger.info(
+				"Total items for provider with id: {} between: {} and: {} is: {}",
+				id,
+				beginDate,
+				endDate,
+				totalItems
+			)
 
 			val totalPages = ceil(totalItems.toDouble() / size).toInt()
-			logger.info("Total pages for provider with id: {} between: {} and: {} is: {}", id, beginDate, endDate, totalPages)
+			logger.info(
+				"Total pages for provider with id: {} between: {} and: {} is: {}",
+				id,
+				beginDate,
+				endDate,
+				totalPages
+			)
 
 			val pageResult = PaginationResult(dataList, totalItems, page, totalPages)
 			success(PaginatedProviderWithData(provider, pageResult))

@@ -9,6 +9,6 @@ import dynamicFetchingScheduler.utils.PaginationResult
  * @property data The paginated data
  */
 data class PaginatedProviderWithData(
-	val provider : Provider,
-	val data : PaginationResult<RawData>
+	val provider: Provider,
+	val data: PaginationResult<RawData>
 )

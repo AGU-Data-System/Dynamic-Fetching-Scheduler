@@ -9,8 +9,8 @@ package dynamicFetchingScheduler.utils
  * @property totalPages The total number of pages
  */
 data class PaginationResult<T>(
-    val items: List<T>,
-    val totalItems: Int,
-    val currentPage: Int,
-    val totalPages: Int
+	val items: List<T>,
+	val totalItems: Int,
+	val currentPage: Int,
+	val totalPages: Int
 )

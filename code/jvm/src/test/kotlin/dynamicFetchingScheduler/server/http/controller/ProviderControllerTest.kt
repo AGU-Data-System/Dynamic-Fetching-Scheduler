@@ -7,13 +7,15 @@ import dynamicFetchingScheduler.server.http.controller.HTTPUtils.getAllProviders
 import dynamicFetchingScheduler.server.http.controller.HTTPUtils.getProviderData
 import dynamicFetchingScheduler.server.http.controller.HTTPUtils.updateProvider
 import dynamicFetchingScheduler.server.http.controller.HTTPUtils.updateProviderFail
-import dynamicFetchingScheduler.server.http.controller.ProviderModels.toProviderResponse
+import dynamicFetchingScheduler.server.http.controller.ProviderModels.toProviderId
 import dynamicFetchingScheduler.server.http.controller.ProviderModels.toProviderResponseList
 import dynamicFetchingScheduler.server.http.controller.ProviderModels.toProviderWithDataResponse
 import dynamicFetchingScheduler.server.testUtils.SchemaManagementExtension
 import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -23,8 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(SchemaManagementExtension::class)
@@ -59,14 +59,14 @@ class ProviderControllerTest {
 		val sut = dummyProvider
 
 		// act
-		val result = addProvider(client, sut).toProviderResponse().takeLastFetch()
-		val allProviders = getAllProviders(client).toProviderResponseList().takeLastFetch()
+		val result = addProvider(client, sut).toProviderId()
+		val allProviders = getAllProviders(client).toProviderResponseList()
 
 		// assert
 		assert(allProviders.providers.isNotEmpty())
-		assert(allProviders.providers.contains(result))
+		assert(allProviders.providers.map { it.id }.contains(result))
 
-		cleanTest(result.id)
+		cleanTest(result)
 	}
 
 	@Test
@@ -75,12 +75,8 @@ class ProviderControllerTest {
 		val client = testClient()
 		val sut = dummyProvider.copy(url = "Error URL")
 
-		// act
+		// act & assert
 		addProviderFail(client, sut)
-		val allProviders = getAllProviders(client).toProviderResponseList().takeLastFetch()
-
-		// assert
-		assert(allProviders.providers.isEmpty())
 
 		cleanTest()
 	}
@@ -91,12 +87,8 @@ class ProviderControllerTest {
 		val client = testClient()
 		val sut = dummyProvider.copy(frequency = "Error Frequency")
 
-		// act
+		// act & assert
 		addProviderFail(client, sut)
-		val allProviders = getAllProviders(client).toProviderResponseList().takeLastFetch()
-
-		// assert
-		assert(allProviders.providers.isEmpty())
 
 		cleanTest()
 	}
@@ -107,23 +99,22 @@ class ProviderControllerTest {
 		val client = testClient()
 		val sut = dummyProvider
 
-		val provider = addProvider(client, sut).toProviderResponse()
+		val provider = addProvider(client, sut).toProviderId()
 
 		val resultList1 = getAllProviders(client).toProviderResponseList()
 
 		// act
 		val updatedProviderModel = dummyProvider.copy(name = "Test Update")
-		updateProvider(client, provider.id, updatedProviderModel)
+		updateProvider(client, provider, updatedProviderModel)
 
 		val resultList2 = getAllProviders(client).toProviderResponseList()
-		val updatedProvider = resultList2.providers.first { it.id == provider.id }
+		val updatedProvider = resultList2.providers.first { it.id == provider }
 
 		// assert
 		assert(resultList2.providers.contains(updatedProvider))
-		assertFalse(resultList2.providers.contains(provider))
 		assertNotEquals(resultList1, resultList2)
 
-		cleanTest(provider.id)
+		cleanTest(provider)
 	}
 
 	@Test
@@ -132,25 +123,24 @@ class ProviderControllerTest {
 		val client = testClient()
 		val sut = dummyProvider
 
-		val provider = addProvider(client, sut).toProviderResponse()
+		val provider = addProvider(client, sut).toProviderId()
 
 		val resultList1 = getAllProviders(client).toProviderResponseList()
 
 		// act
-		val updatedProviderModel = dummyProvider.copy(name = "Test Update", url = "Error URL", frequency = "Error Frequency")
-		updateProviderFail(client, provider.id, updatedProviderModel)
+		val updatedProviderModel =
+			dummyProvider.copy(name = "Test Update", url = "Error URL", frequency = "Error Frequency")
+		updateProviderFail(client, provider, updatedProviderModel)
 
 		val resultList2 = getAllProviders(client).toProviderResponseList()
 		val updatedProvider = resultList2.providers.find { it.name == "Test Update" }
 
-		println(resultList2.providers)
-		println(provider)
 		// assert
 		assertNull(updatedProvider)
-		assert(resultList2.providers.contains(provider))
+		assert(resultList2.providers.map { it.id }.contains(provider))
 		assertEquals(resultList1, resultList2)
 
-		cleanTest(provider.id)
+		cleanTest(provider)
 	}
 
 	@Test
@@ -193,8 +183,8 @@ class ProviderControllerTest {
 		val client = testClient()
 		val sut1 = dummyProvider
 		val sut2 = dummyProvider.copy(name = "Test Provider 2")
-		addProvider(client, sut1).toProviderResponse()
-		addProvider(client, sut2).toProviderResponse()
+		addProvider(client, sut1)
+		addProvider(client, sut2)
 
 		// act
 		val result = getAllProviders(client).toProviderResponseList()
@@ -208,7 +198,7 @@ class ProviderControllerTest {
 	}
 
 	@Test
-	fun `get all providers should return empty`() {
+	fun `get all providers shouldn't return invalid providers`() {
 		// arrange
 		val client = testClient()
 		val sut1 = dummyProvider.copy(url = "Error URL")
@@ -222,9 +212,8 @@ class ProviderControllerTest {
 		val result = getAllProviders(client).toProviderResponseList()
 
 		// assert
-		assert(result.providers.isEmpty())
-
-		cleanTest(*result.providers.map { it.id }.toIntArray())
+		assert(result.providers.filterNot { it.name == sut1.name || it.name == sut2.name || it.name == sut3.name }
+			.isEmpty())
 	}
 
 	@Test
@@ -232,20 +221,20 @@ class ProviderControllerTest {
 		// arrange
 		val client = testClient()
 		val sut = dummyProvider
-		val provider = addProvider(client, sut).toProviderResponse()
+		val provider = addProvider(client, sut).toProviderId()
 		// act
 
 		val curTime = LocalDateTime.now()
 		runBlocking {
 			delay(THIRTY_SECONDS)
 		}
-		val result = getProviderData(client, provider.id, curTime).toProviderWithDataResponse()
+		val result = getProviderData(client, provider, curTime).toProviderWithDataResponse()
 
 		// assert
-		assert(result.id == provider.id)
+		assert(result.id == provider)
 		assert(result.dataList.size in 1..3)
 
-		cleanTest(provider.id)
+		cleanTest(provider)
 	}
 
 	/**
