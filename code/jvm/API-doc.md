@@ -39,7 +39,7 @@ When pagination is used, each page has a maximum of 10 results.
 
 ## Date and Time format
 
-This API is designed to only use the [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601#Durations) format for date and 
+This API is designed to only use the [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601#Durations) format for date and
 time.
 
 ## API Endpoints
@@ -56,18 +56,18 @@ Adds a new provider.
     - **Required:**
         - [Provider Input Model](#provider-input-model)
 - **Success Response:**
-    - **Content:** 
-        - `application/json`    
+    - **Content:**
+        - `application/json`
             - [Add Provider Output Model](#add-provider-output-model)
 - **Error Response:**
-    - **Content:** 
+    - **Content:**
         - `application/json`
             - [Bad Request](#bad-request)
 - **Sample Call:**
     ```shell
     curl -X POST "http://localhost:8080/api/provider" -H "Content-Type: application/json" -d '{"name": "provider1", "url": "http://localhost:8080/provider1", "frequency": "PT20S", "isActive": "true"}'
     ```
-  
+
 ### POST api/provider/{id}
 
 Updates a provider if it exists.
@@ -80,11 +80,11 @@ Updates a provider if it exists.
     - **Required:**
         - [Provider Input Model](#provider-input-model)
 - **Success Response:**
-    - **Content:** 
-        - `application/json`    
+    - **Content:**
+        - `application/json`
             - [Provider Output Model](#provider-output-model)
 - **Error Response:**
-    - **Content:** 
+    - **Content:**
         - `application/json`
             - [Bad Request](#bad-request)
 - **Sample Call:**
@@ -99,13 +99,13 @@ Deletes a provider.
 - **URL:** `/api/provider/{id}`
 - **Method:** `DELETE`
 - **Path Variables:**
-  - `id` - The unique id of the provider to be deleted.
+    - `id` - The unique id of the provider to be deleted.
 - **Success Response:**
-    - **Content:** 
-        - `application/json`    
+    - **Content:**
+        - `application/json`
             - [Simple message](#simple-message)
 - **Error Response:**
-    - **Content:** 
+    - **Content:**
         - `application/json`
             - [Bad Request](#bad-request)
 - **Sample Call:**
@@ -120,18 +120,18 @@ Fetches all providers.
 - **URL:** `/api/providers`
 - **Method:** `GET`
 - **Success Response:**
-- **Content:** 
-    - `application/json`    
+- **Content:**
+    - `application/json`
         - [Provider List Output Model](#provider-list-output-model)
 - **Error Response:**
-    - **Content:** 
+    - **Content:**
         - `application/json`
             - [Bad Request](#bad-request)
 - **Sample Call:**
     ```shell
       curl -X GET "http://localhost:8080/api/providers"
     ```
-  
+
 ### GET api/provider
 
 Fetches a provider and its data for a given period.
@@ -148,12 +148,12 @@ Fetches a provider and its data for a given period.
         - `page` - The page number to fetch the data.
         - `size` - The number of results to fetch in a single page.
 - **Success Response:**
-- **Content:** 
-    - `application/json`    
+- **Content:**
+    - `application/json`
         - [Provider With Data Output Model](#provider-with-data-output-model)
 - **Error Response:**
-    - **Content:** 
-         - `application/json`
+    - **Content:**
+        - `application/json`
             - [Bad Request](#bad-request)
 - **Sample Call:**
     ```shell
@@ -180,7 +180,7 @@ Fetches a provider and its data for a given period.
     "isActive": true
   }
   ```
-  
+
 ## Output Models
 
 ### Simple Message
@@ -195,7 +195,7 @@ Fetches a provider and its data for a given period.
     "message": "Provider with id: 123 deleted successfully."
   }
   ```
-  
+
 ### Add Provider Output Model
 
 - **Type:** `application/json`
@@ -208,7 +208,7 @@ Fetches a provider and its data for a given period.
     "id": 1
   }
   ```
-  
+
 ### Provider Output Model
 
 - **Type:** `application/json`
@@ -231,7 +231,7 @@ Fetches a provider and its data for a given period.
     "lastFetch": "2024-03-18T12:08:16.494065" 
   }
   ```
-  
+
 ### Provider Raw Data Output Model
 
 - **Type:** `application/json`
@@ -246,7 +246,7 @@ Fetches a provider and its data for a given period.
     "data": "test data"
   }
   ```
-  
+
 ### Provider With Data Output Model
 
 - **Type:** `application/json`
@@ -341,5 +341,5 @@ Fetches a provider and its data for a given period.
     "path": "/api/provider/a"
   }
   ```
-  
+
 Currently, the API only returns a `Bad Request` error message, and there's no other error handling implemented.
