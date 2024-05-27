@@ -168,6 +168,7 @@ class ProviderController(
 
 	/**
 	 * Checks if the URL or the frequency is valid for a provider.
+	 *
 	 * @return True if the URL and the frequency are valid, false otherwise
 	 */
 	private fun ProviderInputModel.frequencyAndURLAreValid(): Boolean {

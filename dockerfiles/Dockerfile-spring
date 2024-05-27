@@ -31,7 +31,7 @@ RUN gradle bootJar --no-daemon
 
 # 3rd stage - Runtime image
 # copies the built jar file and runs the application
-FROM openjdk:17-alpine
+FROM openjdk:17-jdk-slim
 ENV ARTIFACT_NAME=dynamicFetchingScheduler-0.0.1-SNAPSHOT.jar
 ARG APP_HOME
 

@@ -27,4 +27,7 @@ services:
       - DB_URL=jdbc:postgresql://db:5432/postgres?user=postgres&password=postgres
     ports:
       - "8081:8080"
-    entrypoint: ["/bin/sh", "-c", "apk add --no-cache tzdata && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && java -jar /usr/app/dynamicFetchingScheduler-0.0.1-SNAPSHOT.jar"]
+    entrypoint: ["/bin/sh", "-c", "apt-get update && apt-get install -y tzdata && 
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && 
+    java -jar /usr/app/dynamicFetchingScheduler-0.0.1-SNAPSHOT.jar"]
+

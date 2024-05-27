@@ -7,10 +7,10 @@
 - [Date and Time format](#date-and-time-format)
 - [API Endpoints](#api-endpoints)
     - [POST api/provider](#post-apiprovider)
-    - [POST api/provider/{id}](#post-apiproviderid)
-    - [DELETE api/provider](#delete-apiproviderid)
-    - [GET api/providers](#get-apiproviders)
     - [GET api/provider](#get-apiprovider)
+    - [POST api/provider/{id}](#post-apiproviderid)
+    - [DELETE api/provider/{id}](#delete-apiproviderid)
+    - [GET api/providers](#get-apiproviders)
 - [Input Models](#input-models)
     - [Provider Input Model](#provider-input-model)
 - [Output Models](#output-models)
@@ -35,7 +35,7 @@ A Provider is considered active if the request to the provider's endpoint has a 
 ## Pagination
 
 The API uses pagination to limit the number of results returned in a single request.
-When pagination is used, each page has a maximum of 10 results.
+When pagination is used, the client can specify the number of results to fetch in a single page and the page number.
 
 ## Date and Time format
 
@@ -66,6 +66,34 @@ Adds a new provider.
 - **Sample Call:**
     ```shell
     curl -X POST "http://localhost:8080/api/provider" -H "Content-Type: application/json" -d '{"name": "provider1", "url": "http://localhost:8080/provider1", "frequency": "PT20S", "isActive": "true"}'
+    ```
+
+### GET api/provider
+
+Fetches a provider and its data for a given period.
+
+- **URL:** `/api/provider/{id}`
+- **Method:** `GET`
+- **Path Variables:**
+    - `id` - The unique id of the provider.
+- **Request Parameters:**
+    - **Required:**
+        - `beginDate` - The beginning date of the period to fetch the data.
+    - **Optional:**
+        - `endDate` - The end date of the period to fetch the data.
+        - `page` - The page number to fetch the data.
+        - `size` - The number of results to fetch in a single page.
+- **Success Response:**
+- **Content:**
+    - `application/json`
+        - [Provider With Data Output Model](#provider-with-data-output-model)
+- **Error Response:**
+    - **Content:**
+        - `application/json`
+            - [Bad Request](#bad-request)
+- **Sample Call:**
+    ```shell
+      curl -X GET "http://localhost:8080/api/provider/1?beginDate=2021-01-01T00:00"
     ```
 
 ### POST api/provider/{id}
@@ -130,34 +158,6 @@ Fetches all providers.
 - **Sample Call:**
     ```shell
       curl -X GET "http://localhost:8080/api/providers"
-    ```
-
-### GET api/provider
-
-Fetches a provider and its data for a given period.
-
-- **URL:** `/api/provider/{id}`
-- **Method:** `GET`
-- **Path Variables:**
-    - `id` - The unique id of the provider.
-- **Request Parameters:**
-    - **Required:**
-        - `beginDate` - The beginning date of the period to fetch the data.
-    - **Optional:**
-        - `endDate` - The end date of the period to fetch the data.
-        - `page` - The page number to fetch the data.
-        - `size` - The number of results to fetch in a single page.
-- **Success Response:**
-- **Content:**
-    - `application/json`
-        - [Provider With Data Output Model](#provider-with-data-output-model)
-- **Error Response:**
-    - **Content:**
-        - `application/json`
-            - [Bad Request](#bad-request)
-- **Sample Call:**
-    ```shell
-      curl -X GET "http://localhost:8080/api/provider/1?beginDate=2021-01-01T00:00"
     ```
 
 ## Input Models
